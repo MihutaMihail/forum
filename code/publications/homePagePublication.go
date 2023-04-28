@@ -16,14 +16,19 @@ type publicationTemplateData struct {
 	IsThereImage  bool
 }
 
-func MakePublicationHomePageTemplate(title string, description string, imageLink string, tags []string) template.HTML {
+/*
+	And it's at this moment that Fafa realized. There is no overloading (or even default variables) in go.
+
+So, PLEASE, pass an empty string if the post don't have an image, and sorry
+*/
+func MakePublicationHomePageTemplate(title string, description string, imageLink string, tags []string, upvoteNumber int) template.HTML {
 	publicationTemplate := publicationTemplateData{
 		Title:        title,
 		Description:  description,
 		Tags:         makeTags(tags),
-		UpvoteNumber: 0,
+		UpvoteNumber: upvoteNumber,
 		ImageLink:    imageLink,
-		IsThereImage: true,
+		IsThereImage: imageLink != "",
 	}
 
 	tpl := new(bytes.Buffer)
