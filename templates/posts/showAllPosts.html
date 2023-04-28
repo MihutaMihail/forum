@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h1>All Posts</h1>
+    <ul>
+        {{range .}}
+            <li><a href="/posts/{{.ID}}">{{.Title}}</a></li>
+        {{end}}
+    </ul>
+</body>
+</html>
