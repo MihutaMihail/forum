@@ -7,6 +7,7 @@ import (
 )
 
 type publicationTemplateData struct {
+	Username      string
 	Title         string
 	Description   string
 	Tags          template.HTML
@@ -21,8 +22,9 @@ type publicationTemplateData struct {
 
 So, PLEASE, pass an empty string if the post don't have an image, and sorry
 */
-func MakePublicationHomePageTemplate(title string, description string, imageLink string, tags []string, upvoteNumber int, commentNumber int) template.HTML {
+func MakePublicationHomePageTemplate(username string, title string, description string, imageLink string, tags []string, upvoteNumber int, commentNumber int) template.HTML {
 	publicationTemplate := publicationTemplateData{
+		Username:      username,
 		Title:         title,
 		Description:   description,
 		Tags:          makeTags(tags),
