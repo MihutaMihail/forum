@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"net/http"
 	"html/template"
 	"forum/database"
@@ -40,15 +41,34 @@ func main() {
 	http.HandleFunc("/showAllPosts", func(w http.ResponseWriter, r *http.Request) {
 		showAllPostsPage := template.Must(template.ParseFiles("../templates/posts/showAllPosts.html"))
 
-		showAllPostsPage.Execute(w, database.SelectPosts())
+		showAllPostsPage.Execute(w, database.SelectAllPosts())
 	})
 
-	// Update
+	http.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
+		// Get the ID from the query parameters
+		idStr := r.URL.Query().Get("id")
+		if idStr == "" {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+		// Change to int
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
 
-	// Delete
+		// Retrieve the post from the database using the ID
+		post := database.GetPostByID(id)
+		if post == (database.Post{}) {
+			http.Error(w, "Post not found", http.StatusNotFound)
+			return
+		}
 
+		showPostPage := template.Must(template.ParseFiles("../templates/posts/showPost.html"))
 
-
+		showPostPage.Execute(w, post)
+	})
 	
 	fmt.Println("Listening on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))

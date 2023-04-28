@@ -9,6 +9,7 @@ import (
 
 var (
 	posts []Post
+	existingPosts = make(map[int]bool)
 )
 
 // Declaration of structures
@@ -18,9 +19,7 @@ type Post struct {
 	Content string
 }
 
-func SelectPosts() []Post {
-	posts = []Post{}
-
+func SelectAllPosts() []Post {
 	// Open database
 	db, err := sql.Open("sqlite3", "../database.db")
 	if err != nil {
@@ -28,24 +27,11 @@ func SelectPosts() []Post {
 	}
 	defer db.Close()
 
-	// CREATE TABLE POSTS
-	// _, err = db.Exec("CREATE TABLE posts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT)")
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// Prepare SQL query to INSERT into POSTS
-	// query, err := db.Prepare("INSERT INTO posts(title, content) VALUES(?, ?)")
-    // if err != nil {
-    //     fmt.Println(err)
-    // }
-    // defer query.Close()
-
-	// Execute query to INSERT
-	// _, err = query.Exec("test2", "Content of test2")
-    // if err != nil {
-    //     fmt.Println(err)
-    // }
+	// CREATE TABLE POSTS IF NOT EXISTS
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT)")
+	if err != nil {
+		panic(err)
+	}
 
 	// Prepare SQL query to SELECT ALL POSTS
 	rows, err := db.Query("SELECT * FROM posts")
@@ -61,11 +47,24 @@ func SelectPosts() []Post {
 		if err != nil {
 			log.Fatal(err)
 		}
-		posts = append(posts, post)
+
+		if _, ok := existingPosts[post.ID]; !ok {
+			posts = append(posts, post)
+			existingPosts[post.ID] = true
+		}
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
 	}
 
 	return posts
+}
+
+func GetPostByID(id int) Post {
+	for _, post := range posts {
+		if post.ID == id {
+			return post
+		}
+	}
+	return Post{}
 }
