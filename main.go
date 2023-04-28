@@ -19,8 +19,8 @@ func main() {
 	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
 
 	indexData := indexPageData{
-		Publication01: publications.MakePublicationHomePageTemplate("title", "description blabla", "http://www.snut.fr/wp-content/uploads/2015/08/image-de-paysage-2.jpg"),
-		Publication02: publications.MakePublicationHomePageTemplate("title2", "c'est une deuxième description", "https://bonjournature.fr/wp-content/uploads/image-automne-gratuite-1.jpg"),
+		Publication01: publications.MakePublicationHomePageTemplate("title", "description blabla", "http://www.snut.fr/wp-content/uploads/2015/08/image-de-paysage-2.jpg", []string{"Nature", "Art", "Space"}),
+		Publication02: publications.MakePublicationHomePageTemplate("title2", "c'est une deuxième description", "https://bonjournature.fr/wp-content/uploads/image-automne-gratuite-1.jpg", []string{"Gaming", "Cars"}),
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

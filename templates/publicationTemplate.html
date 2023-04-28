@@ -1,5 +1,10 @@
 <div class="publication">
-    <div class="publicationTitle">{{.Title}}</div>
+    <div class="publicationTop">
+        <div class="publicationTitle">{{.Title}}</div>
+        <div class="publicationTags">
+            {{.Tags}}
+        </div>
+    </div>
     <div class="alignInside">
         <div class="publicationDescription" {{if .IsThereImage}}style="width: 70%;"{{end}}>{{.Description}}</div>
         {{if .IsThereImage}}
