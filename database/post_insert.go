@@ -1,14 +1,13 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"database/sql"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func InsertPost(title string, content string) {
+func InsertPost(title string, content string) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "../database.db")
 	if err != nil {
@@ -19,13 +18,15 @@ func InsertPost(title string, content string) {
 	// Prepare SQL query to INSERT into POSTS
 	query, err := db.Prepare("INSERT INTO posts(title, content) VALUES(?, ?)")
     if err != nil {
-        fmt.Println(err)
+        return err
     }
     defer query.Close()
 
 	// Execute query to INSERT
 	_, err = query.Exec(title, content)
     if err != nil {
-        fmt.Println(err)
+		return err
     }
+
+	return nil
 }

@@ -24,24 +24,75 @@ func main() {
 	// POSTS
 	//
 
-	// Create
-	http.HandleFunc("/createPost", func(w http.ResponseWriter, r *http.Request) {
-		createPostPage := template.Must(template.ParseFiles("../templates/posts/createPost.html"))
+	// CREATE & UPDATE
+	http.HandleFunc("/formPost", func(w http.ResponseWriter, r *http.Request) {
+		formPost := template.Must(template.ParseFiles("../templates/posts/formPost.html"))
 
-		createPostPage.Execute(w, "o")
+		// Get the ID from the query parameters
+		idStr := r.URL.Query().Get("id")
+
+		// Change to CREATE POST
+		if idStr == "" {
+			var postEmpty database.Post
+			postEmpty.ID = -1
+
+			formPost.Execute(w, postEmpty)
+			return
+		}
+		// Change to int
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+
+		// Retrieve the post from the database using the ID
+		post := database.GetPostByID(id)
+		if post == (database.Post{}) {
+			http.Error(w, "Post not found", http.StatusNotFound)
+			return
+		}	
+
+		// Change to UPDATE POST
+		formPost.Execute(w, post)
 	})
 
 	http.HandleFunc("/submitPost", func(w http.ResponseWriter, r *http.Request) {
-		database.InsertPost(r.FormValue("title"), r.FormValue("content"))
+		// Get the ID from the query parameters
+		idStr := r.URL.Query().Get("id")
+		if idStr == "" {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+		// Change to int
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+
+		if (id == -1) {
+			err := database.InsertPost(r.FormValue("title"), r.FormValue("content"))
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		} else {
+			err := database.UpdatePost(id, r.FormValue("title"), r.FormValue("content"))
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
 
 		http.Redirect(w, r, "/showAllPosts", http.StatusFound)
 	})
 
-	// Read
+	// READ
 	http.HandleFunc("/showAllPosts", func(w http.ResponseWriter, r *http.Request) {
-		showAllPostsPage := template.Must(template.ParseFiles("../templates/posts/showAllPosts.html"))
+		showAllPosts := template.Must(template.ParseFiles("../templates/posts/showAllPosts.html"))
 
-		showAllPostsPage.Execute(w, database.SelectAllPosts())
+		showAllPosts.Execute(w, database.SelectAllPosts())
 	})
 
 	http.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
@@ -65,9 +116,9 @@ func main() {
 			return
 		}
 
-		showPostPage := template.Must(template.ParseFiles("../templates/posts/showPost.html"))
+		showPost := template.Must(template.ParseFiles("../templates/posts/showPost.html"))
 
-		showPostPage.Execute(w, post)
+		showPost.Execute(w, post)
 	})
 	
 	fmt.Println("Listening on :8080...")

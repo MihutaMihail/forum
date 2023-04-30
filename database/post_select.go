@@ -50,8 +50,16 @@ func SelectAllPosts() []Post {
 
 		if _, ok := existingPosts[post.ID]; !ok {
 			posts = append(posts, post)
-			existingPosts[post.ID] = true
+		} else {
+			// Update existing post in slice
+			for i := range posts {
+				if posts[i].ID == post.ID {
+					posts[i] = post
+					break
+				}
+			}
 		}
+		existingPosts[post.ID] = true
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
