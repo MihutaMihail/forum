@@ -121,6 +121,26 @@ func main() {
 		showPost.Execute(w, post)
 	})
 	
+	// DELETE
+	http.HandleFunc("/deletePost", func(w http.ResponseWriter, r *http.Request) {
+		// Get the ID from the query parameters
+		idStr := r.URL.Query().Get("id")
+		if idStr == "" {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+		// Change to int
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+
+		database.DeletePost(id)
+
+		http.Redirect(w, r, "/showAllPosts", http.StatusFound)
+	})
+
 	fmt.Println("Listening on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

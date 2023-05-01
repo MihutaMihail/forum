@@ -48,10 +48,11 @@ func SelectAllPosts() []Post {
 			log.Fatal(err)
 		}
 
+		// Check if post exists
 		if _, ok := existingPosts[post.ID]; !ok {
 			posts = append(posts, post)
 		} else {
-			// Update existing post in slice
+			// Update existing posts
 			for i := range posts {
 				if posts[i].ID == post.ID {
 					posts[i] = post
