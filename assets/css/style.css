@@ -62,6 +62,7 @@ button {
     font-size: 26px;
     font-weight: 800;
     cursor: pointer;
+    color: rgb(223, 220, 217); 
 }
 .publicationTags {
     display:flex;

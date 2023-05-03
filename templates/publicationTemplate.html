@@ -2,7 +2,11 @@
     <div class="publicationTop">
         <div class="publicationTopLeft">
             <div class="publicationUsername">{{.Username}}</div>
-            <div class="publicationTitle">{{.Title}}</div>
+            <form action="/publication" method="post">
+                <button name="idPublication" value="{{.IdPublication}}">
+                    <div class="publicationTitle">{{.Title}}</div>
+                </button>
+            </form>
         </div>
         <div class="publicationTags">
             {{.Tags}}

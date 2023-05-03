@@ -6,7 +6,8 @@ import (
 	"log"
 )
 
-type publicationTemplateData struct {
+type PublicationTemplateData struct {
+	IdPublication string
 	Username      string
 	Title         string
 	Description   string
@@ -21,9 +22,12 @@ type publicationTemplateData struct {
 	And it's at this moment that Fafa realized. There is no overloading (or even default variables) in go.
 
 So, PLEASE, pass an empty string if the post don't have an image, and sorry
+
+Will only need the id to access the database in the future
 */
-func MakePublicationHomePageTemplate(username string, title string, description string, imageLink string, tags []string, upvoteNumber int, commentNumber int) template.HTML {
-	publicationTemplate := publicationTemplateData{
+func MakePublicationHomePageTemplate(idPublication string, username string, title string, description string, imageLink string, tags []string, upvoteNumber int, commentNumber int) template.HTML {
+	publicationTemplate := PublicationTemplateData{
+		IdPublication: idPublication,
 		Username:      username,
 		Title:         title,
 		Description:   description,

@@ -19,8 +19,8 @@ func main() {
 	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
 
 	indexData := indexPageData{
-		Publication01: publications.MakePublicationHomePageTemplate("Fafacraft", "title", "description blabla", "http://www.snut.fr/wp-content/uploads/2015/08/image-de-paysage-2.jpg", []string{"Nature", "Art", "Space"}, 0, 0),
-		Publication02: publications.MakePublicationHomePageTemplate("Fafacraft", "title2", "c'est une deuxième description", "", []string{"Gaming", "Cars"}, 5, 2),
+		Publication01: publications.MakePublicationHomePageTemplate("0001", "Fafacraft", "title", "description blabla", "http://www.snut.fr/wp-content/uploads/2015/08/image-de-paysage-2.jpg", []string{"Nature", "Art", "Space"}, 0, 0),
+		Publication02: publications.MakePublicationHomePageTemplate("0002", "Fafacraft", "title2", "c'est une deuxième description", "", []string{"Gaming", "Cars"}, 5, 2),
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +28,7 @@ func main() {
 
 		homePage.Execute(w, indexData)
 	})
+	http.HandleFunc("/publication", publications.HandlePublication)
 
 	fmt.Println("Serving on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
