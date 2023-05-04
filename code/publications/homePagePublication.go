@@ -2,20 +2,27 @@ package publications
 
 import (
 	"bytes"
+	"database/sql"
+	"fmt"
 	"html/template"
 	"log"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type PublicationTemplateData struct {
 	IdPublication string
-	Username      string
 	Title         string
 	Description   string
-	Tags          template.HTML
-	UpvoteNumber  int
-	CommentNumber int
 	ImageLink     string
+	UpvoteNumber  int
+	CreatedDate   string
+	UsernameId    int
+
+	Username      string
+	CommentNumber int
 	IsThereImage  bool
+	Tags          template.HTML
 }
 
 /*
@@ -25,24 +32,38 @@ So, PLEASE, pass an empty string if the post don't have an image, and sorry
 
 Will only need the id to access the database in the future
 */
-func MakePublicationHomePageTemplate(idPublication string, username string, title string, description string, imageLink string, tags []string, upvoteNumber int, commentNumber int) template.HTML {
-	publicationTemplate := PublicationTemplateData{
-		IdPublication: idPublication,
-		Username:      username,
-		Title:         title,
-		Description:   description,
-		Tags:          makeTags(tags),
-		UpvoteNumber:  upvoteNumber,
-		ImageLink:     imageLink,
-		IsThereImage:  imageLink != "",
-		CommentNumber: commentNumber,
+func MakePublicationHomePageTemplate(idPublication string) template.HTML {
+	publicationTemplate := PublicationTemplateData{}
+
+	db, err := sql.Open("sqlite3", "./database.db")
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer db.Close()
+
+	// Get the publication from the db
+	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows := preparedRequest.QueryRow(idPublication)
+	rows.Scan(&publicationTemplate.IdPublication, &publicationTemplate.Title, &publicationTemplate.Description, &publicationTemplate.ImageLink,
+		&publicationTemplate.UpvoteNumber, &publicationTemplate.CreatedDate, &publicationTemplate.UsernameId)
+	fmt.Println(publicationTemplate.ImageLink)
+
+	if publicationTemplate.ImageLink != "" {
+		publicationTemplate.IsThereImage = true
+	} else {
+		publicationTemplate.IsThereImage = false
+	}
+	publicationTemplate.CommentNumber = 10 // TEMP
 
 	tpl := new(bytes.Buffer)
 
 	tplRaw := template.Must(template.ParseFiles("templates/publicationTemplate.html"))
 
-	err := tplRaw.Execute(tpl, publicationTemplate)
+	err = tplRaw.Execute(tpl, publicationTemplate)
+
 	if err != nil {
 		log.Fatal(err)
 	}

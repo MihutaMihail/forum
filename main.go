@@ -23,8 +23,8 @@ func main() {
 	// test()
 
 	indexData := indexPageData{
-		Publication01: publications.MakePublicationHomePageTemplate("0001", "Fafacraft", "title", "description blabla", "http://www.snut.fr/wp-content/uploads/2015/08/image-de-paysage-2.jpg", []string{"Nature", "Art", "Space"}, 0, 0),
-		Publication02: publications.MakePublicationHomePageTemplate("0002", "Fafacraft", "title2", "c'est une deuxième description", "", []string{"Gaming", "Cars"}, 5, 2),
+		Publication01: publications.MakePublicationHomePageTemplate("1"),
+		Publication02: publications.MakePublicationHomePageTemplate("2"),
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
