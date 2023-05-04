@@ -17,11 +17,10 @@ type indexPageData struct {
 }
 
 func main() {
-	fmt.Print("start1")
 	http.Handle("/assets/images/", http.StripPrefix("/assets/images/", http.FileServer(http.Dir("assets/images"))))
 	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
 
-	test()
+	// test()
 
 	indexData := indexPageData{
 		Publication01: publications.MakePublicationHomePageTemplate("0001", "Fafacraft", "title", "description blabla", "http://www.snut.fr/wp-content/uploads/2015/08/image-de-paysage-2.jpg", []string{"Nature", "Art", "Space"}, 0, 0),
@@ -42,7 +41,6 @@ func main() {
 // here you can do dynamic tests
 func test() {
 
-	fmt.Println("start")
 	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		log.Fatal(err)
