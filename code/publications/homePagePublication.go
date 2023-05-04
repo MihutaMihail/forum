@@ -3,7 +3,6 @@ package publications
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 
@@ -36,37 +35,52 @@ func MakePublicationHomePageTemplate(idPublication string) template.HTML {
 	publicationTemplate := PublicationTemplateData{}
 
 	db, err := sql.Open("sqlite3", "./database.db")
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 	defer db.Close()
 
 	// Get the publication from the db
-	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	rows := preparedRequest.QueryRow(idPublication)
-	rows.Scan(&publicationTemplate.IdPublication, &publicationTemplate.Title, &publicationTemplate.Description, &publicationTemplate.ImageLink,
+	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?;")
+	checkErr(err)
+	row := preparedRequest.QueryRow(idPublication)
+	row.Scan(&publicationTemplate.IdPublication, &publicationTemplate.Title, &publicationTemplate.Description, &publicationTemplate.ImageLink,
 		&publicationTemplate.UpvoteNumber, &publicationTemplate.CreatedDate, &publicationTemplate.UsernameId)
-	fmt.Println(publicationTemplate.ImageLink)
 
+	// isThereImage
 	if publicationTemplate.ImageLink != "" {
 		publicationTemplate.IsThereImage = true
 	} else {
 		publicationTemplate.IsThereImage = false
 	}
-	publicationTemplate.CommentNumber = 10 // TEMP
+
+	// get Username
+	preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
+	checkErr(err)
+	preparedRequest.QueryRow(publicationTemplate.UsernameId).Scan(&publicationTemplate.Username)
+
+	// get number of comment
+	preparedRequest, err = db.Prepare("SELECT COUNT(*) FROM Comments WHERE pid = ?;")
+	checkErr(err)
+	preparedRequest.QueryRow(publicationTemplate.IdPublication).Scan(&publicationTemplate.CommentNumber)
+
+	// get tags
+	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?")
+	checkErr(err)
+	rows, err := preparedRequest.Query(publicationTemplate.IdPublication)
+	checkErr(err)
+	var tagArray []string
+	for rows.Next() {
+		var tag string
+		err = rows.Scan(&tag)
+		tagArray = append(tagArray, tag)
+	}
+	publicationTemplate.Tags = makeTags(tagArray)
 
 	tpl := new(bytes.Buffer)
 
 	tplRaw := template.Must(template.ParseFiles("templates/publicationTemplate.html"))
 
 	err = tplRaw.Execute(tpl, publicationTemplate)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkErr(err)
 
 	tplString := tpl.String()
 	return template.HTML(tplString)
@@ -101,4 +115,10 @@ func makeTags(tags []string) template.HTML {
 	}
 
 	return template.HTML(finalString)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Panic(err)
+	}
 }
