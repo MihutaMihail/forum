@@ -39,7 +39,6 @@ func main() {
 			formPost.Execute(w, postEmpty)
 			return
 		}
-		// Change to int
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
 			http.Error(w, "Invalid post ID", http.StatusBadRequest)
@@ -58,18 +57,12 @@ func main() {
 	})
 
 	http.HandleFunc("/submitPost", func(w http.ResponseWriter, r *http.Request) {
-		// Get the ID from the query parameters
-		idStr := r.URL.Query().Get("id")
-		if idStr == "" {
-			http.Error(w, "Invalid post ID", http.StatusBadRequest)
-			return
-		}
-		// Change to int
-		id, err := strconv.Atoi(idStr)
+		// Get ID
+		id, err := getQueryID(w, r)
 		if err != nil {
 			http.Error(w, "Invalid post ID", http.StatusBadRequest)
 			return
-		}
+	 	}
 
 		if (id == -1) {
 			err := database.InsertPost(r.FormValue("title"), r.FormValue("content"))
@@ -96,18 +89,12 @@ func main() {
 	})
 
 	http.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
-		// Get the ID from the query parameters
-		idStr := r.URL.Query().Get("id")
-		if idStr == "" {
-			http.Error(w, "Invalid post ID", http.StatusBadRequest)
-			return
-		}
-		// Change to int
-		id, err := strconv.Atoi(idStr)
+		// Get ID
+		id, err := getQueryID(w, r)
 		if err != nil {
 			http.Error(w, "Invalid post ID", http.StatusBadRequest)
 			return
-		}
+	 	}
 
 		// Retrieve the post from the database using the ID
 		post := database.GetPostByID(id)
@@ -117,24 +104,17 @@ func main() {
 		}
 
 		showPost := template.Must(template.ParseFiles("../templates/posts/showPost.html"))
-
 		showPost.Execute(w, post)
 	})
 	
 	// DELETE
 	http.HandleFunc("/deletePost", func(w http.ResponseWriter, r *http.Request) {
-		// Get the ID from the query parameters
-		idStr := r.URL.Query().Get("id")
-		if idStr == "" {
-			http.Error(w, "Invalid post ID", http.StatusBadRequest)
-			return
-		}
-		// Change to int
-		id, err := strconv.Atoi(idStr)
+		// Get ID
+		id, err := getQueryID(w, r)
 		if err != nil {
 			http.Error(w, "Invalid post ID", http.StatusBadRequest)
 			return
-		}
+	 	}
 
 		database.DeletePost(id)
 
@@ -143,4 +123,15 @@ func main() {
 
 	fmt.Println("Listening on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func getQueryID(w http.ResponseWriter, r *http.Request) (int, error) {
+		// Get the ID from the query parameters
+		idStr := r.URL.Query().Get("id")
+		
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			return -1, err
+	 	}
+		return id, err
 }
