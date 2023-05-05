@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	posts         []publicationTemplateData
+	posts         []PublicationData
 	existingPosts = make(map[int]bool)
 )
 
@@ -16,7 +16,7 @@ var (
 // SELECT
 //
 
-func GetAllPosts() []publicationTemplateData {
+func GetAllPosts() []PublicationData {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -29,25 +29,25 @@ func GetAllPosts() []publicationTemplateData {
 
 	// Store the select posts
 	for rows.Next() {
-		var post publicationTemplateData
+		var post PublicationData
 		err := rows.Scan(
-			&post.IdPublication, &post.Title, &post.Description, &post.ImageLink,
-			&post.UpvoteNumber, &post.CreatedDate, &post.UsernameId)
+			&post.Pid, &post.Title, &post.Content, &post.ImageLink,
+			&post.UpvoteNumber, &post.CreatedDate, &post.Uid)
 		checkErr(err)
 
 		// Check if post exists
-		if _, ok := existingPosts[post.IdPublication]; !ok {
+		if _, ok := existingPosts[post.Pid]; !ok {
 			posts = append(posts, post)
 		} else {
 			// Update existing posts
 			for i := range posts {
-				if posts[i].IdPublication == post.IdPublication {
+				if posts[i].Uid == post.Uid {
 					posts[i] = post
 					break
 				}
 			}
 		}
-		existingPosts[post.IdPublication] = true
+		existingPosts[post.Pid] = true
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
@@ -55,20 +55,20 @@ func GetAllPosts() []publicationTemplateData {
 	return posts
 }
 
-func GetPostByID(id int) publicationTemplateData {
+func GetPostByID(id int) PublicationData {
 	for _, post := range posts {
-		if post.IdPublication == id {
+		if post.Pid == id {
 			return post
 		}
 	}
-	return publicationTemplateData{}
+	return PublicationData{}
 }
 
 //
 // INSERT
 //
 
-func InsertPost(post publicationTemplateData) error {
+func InsertPost(post PublicationData) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -82,7 +82,7 @@ func InsertPost(post publicationTemplateData) error {
 	defer query.Close()
 
 	// Execute query to INSERT
-	_, err = query.Exec(post.Title, post.Description, post.ImageLink, post.UpvoteNumber, post.CreatedDate, post.UsernameId)
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.UpvoteNumber, post.CreatedDate, post.Uid)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func InsertPost(post publicationTemplateData) error {
 // DELETE
 //
 
-func DeletePost(post publicationTemplateData) error {
+func DeletePost(post PublicationData) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -108,12 +108,12 @@ func DeletePost(post publicationTemplateData) error {
 	defer query.Close()
 
 	// Execute query to INSERT
-	_, err = query.Exec(post.IdPublication)
+	_, err = query.Exec(post.Pid)
 	if err != nil {
 		return err
 	}
 
-	deleteFromArray(post.IdPublication)
+	deleteFromArray(post.Pid)
 
 	return nil
 }
@@ -121,7 +121,7 @@ func DeletePost(post publicationTemplateData) error {
 func deleteFromArray(id int) {
 	postDelete := GetPostByID(id)
 	for i, post := range posts {
-		if post.IdPublication == postDelete.IdPublication {
+		if post.Pid == postDelete.Pid {
 			posts = append(posts[:i], posts[i+1:]...)
 			break
 		}
@@ -132,7 +132,7 @@ func deleteFromArray(id int) {
 // UPDATE
 //
 
-func UpdatePost(post publicationTemplateData) error {
+func UpdatePost(post PublicationData) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -145,7 +145,7 @@ func UpdatePost(post publicationTemplateData) error {
 	}
 
 	// Execute query to UPDATE
-	_, err = query.Exec(post.Title, post.Description, post.ImageLink, post.UpvoteNumber)
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.UpvoteNumber)
 	if err != nil {
 		return err
 	}

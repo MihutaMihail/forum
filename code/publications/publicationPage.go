@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-type publicationData struct {
+type PublicationData struct {
 	Pid          int
 	Title        string
 	Content      string
@@ -43,7 +43,7 @@ func HandlePublication(w http.ResponseWriter, r *http.Request) /*template.HTML*/
 	checkErr(err)
 	defer db.Close()
 
-	publicationData := publicationData{}
+	publicationData := PublicationData{}
 
 	r.ParseForm()
 	publicationData.Pid, err = strconv.Atoi(r.FormValue("idPublication"))

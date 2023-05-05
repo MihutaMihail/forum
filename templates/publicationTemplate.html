@@ -3,7 +3,7 @@
         <div class="publicationTopLeft">
             <div class="publicationUsername">{{.Username}}</div>
             <form action="/publication" method="post">
-                <button name="idPublication" value="{{.IdPublication}}">
+                <button name="idPublication" value="{{.Pid}}">
                     <div class="publicationTitle">{{.Title}}</div>
                 </button>
             </form>
@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="alignInside">
-        <div class="publicationDescription" {{if .IsThereImage}}style="width: 70%;"{{end}}>{{.Description}}</div>
+        <div class="publicationDescription" {{if .IsThereImage}}style="width: 70%;"{{end}}>{{.Content}}</div>
         {{if .IsThereImage}}
         <img class="publicationImage" src="{{.ImageLink}}" alt="exampleImage">
         {{end}}

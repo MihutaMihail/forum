@@ -9,26 +9,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type publicationTemplateData struct {
-	IdPublication int
-	Title         string
-	Description   string
-	ImageLink     string
-	UpvoteNumber  int
-	CreatedDate   string
-	UsernameId    int
-
-	Username      string
-	CommentNumber int
-	IsThereImage  bool
-	Tags          template.HTML
-}
-
 /*
 Take the id of a publication to give a 70% wide and 150px tall card of the publication
 */
 func MakePublicationHomePageTemplate(idPublication string) template.HTML {
-	publicationTemplate := publicationTemplateData{}
+	publicationTemplate := PublicationData{}
 
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -38,8 +23,8 @@ func MakePublicationHomePageTemplate(idPublication string) template.HTML {
 	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?;")
 	checkErr(err)
 	row := preparedRequest.QueryRow(idPublication)
-	row.Scan(&publicationTemplate.IdPublication, &publicationTemplate.Title, &publicationTemplate.Description, &publicationTemplate.ImageLink,
-		&publicationTemplate.UpvoteNumber, &publicationTemplate.CreatedDate, &publicationTemplate.UsernameId)
+	row.Scan(&publicationTemplate.Pid, &publicationTemplate.Title, &publicationTemplate.Content, &publicationTemplate.ImageLink,
+		&publicationTemplate.UpvoteNumber, &publicationTemplate.CreatedDate, &publicationTemplate.Uid)
 
 	// isThereImage
 	if publicationTemplate.ImageLink != "" {
@@ -51,17 +36,17 @@ func MakePublicationHomePageTemplate(idPublication string) template.HTML {
 	// get Username
 	preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 	checkErr(err)
-	preparedRequest.QueryRow(publicationTemplate.UsernameId).Scan(&publicationTemplate.Username)
+	preparedRequest.QueryRow(publicationTemplate.Uid).Scan(&publicationTemplate.Username)
 
 	// get number of comment
 	preparedRequest, err = db.Prepare("SELECT COUNT(*) FROM Comments WHERE pid = ?;")
 	checkErr(err)
-	preparedRequest.QueryRow(publicationTemplate.IdPublication).Scan(&publicationTemplate.CommentNumber)
+	preparedRequest.QueryRow(publicationTemplate.Pid).Scan(&publicationTemplate.CommentNumber)
 
 	// get tags
 	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?")
 	checkErr(err)
-	rows, err := preparedRequest.Query(publicationTemplate.IdPublication)
+	rows, err := preparedRequest.Query(publicationTemplate.Pid)
 	checkErr(err)
 	var tagArray []string
 	for rows.Next() {
