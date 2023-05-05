@@ -15,7 +15,7 @@
             <div class="publicationPageFirstLine">
                 <div class="publicationPageTopLeft">
                     <div class="publicationPageUsername">{{.Username}}</div>
-                    <div>{{.CreatedDate}}</div>
+                    <div>le {{.CreatedDate}}</div>
                 </div>
                 <div class="publicationPageTags">{{.Tags}}</div>
             </div>
@@ -44,16 +44,35 @@
             </div>
         </div>
         <div class="publicationPageSeparator">
+            <div>
+                <button class="publicationPageCreateComment">+ Répondre</button>
+            </div>
             <div class="publicationPageSortComment">Trier par : 
                 <button class="publicationPageSortCommentBtn publicationPageSortCommentBtnSelected">Pertinance</button> | <button class="publicationPageSortCommentBtn">Nouveau</button>
             </div>
         </div>
 
         <div class="publicationPageComments">
-            {{.Comments}}
-            <!-- <div class="publicationPageComment">
-                
-            </div> -->
+            {{range .Comments}}
+                <div class="publicationPageComment">
+                    <div class="publicationPageCommentSide">
+                        <button><img class="upvoteIcon"src="https://external-preview.redd.it/vWYcdynWxuFy6bKYpZwuw6KiNgYuBPM6daHCwWRs4mo.png?auto=webp&s=fe3bf857b3c9f1369aed1ea0bc5e1acd8ae39449" alt=""></button>
+                        <span class="publicationPageCommentLikeNb">{{.Like}}</span>
+                        <button><img class="downvoteIcon"src="https://lh6.googleusercontent.com/proxy/eIl4xyFenaeOotTx0bp9nXzEU8tPQ8c5r9hrkfvG43vToNsuAS_cmLU-IQ4kcvCxwtaV9tifecw8G6dEGbzbzA79YF3dQLIRgrmQEwsJZr3tk_oraWzBDdQNeL3ycGxBjaYZxx1R1ZSHHt0PUjsTIggpBZ6p1KyiT1g5ry4fME0=s0-d" alt=""></button>        
+                    </div> 
+                    <div class="publicationPageCommentCore">
+                        <div class="publicationPageCommentHeader">
+                            <div class="publicationPageCommentUsername">{{.Username}}</div>
+                            le {{.CreatedDate}}
+                        </div>
+                        
+                        <div class="publicationPageContent">
+                            {{.Content}}
+                        </div>
+                    </div>
+                </div>
+            {{end}}
+            
         </div>
     
     </div>

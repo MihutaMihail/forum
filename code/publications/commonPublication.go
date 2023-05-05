@@ -30,7 +30,7 @@ type CommentData struct {
 	Uid         int
 	Pid         int
 
-	username string
+	Username string
 }
 
 func makePublicationWithId(idInt int) *PublicationData{
@@ -65,7 +65,7 @@ func makePublicationWithId(idInt int) *PublicationData{
 	preparedRequest.QueryRow(publicationData.Pid).Scan(&publicationData.CommentNumber)
 
 	// get tags
-	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?")
+	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
 	checkErr(err)
 	rows, err := preparedRequest.Query(publicationData.Pid)
 	checkErr(err)
@@ -76,7 +76,39 @@ func makePublicationWithId(idInt int) *PublicationData{
 		tagArray = append(tagArray, tag)
 	}
 	publicationData.Tags = makeTags(tagArray)
+
+	publicationData.Comments = makeComments(publicationData.Pid)
+
+	// fmt.Println(publicationData.Comments[0].Content)
 	return &publicationData
+}
+
+func makeComments(Pid int) []CommentData{
+	db, err := sql.Open("sqlite3", "./database.db")
+	checkErr(err)
+	defer db.Close()
+	var finalArray []CommentData
+
+	// get all comments
+	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;") 
+	checkErr(err)
+	rows, err := preparedRequest.Query(Pid)
+	// for each results, get the comment data
+	for rows.Next() {
+		var comment CommentData
+		err := rows.Scan(&comment.Cid, &comment.Content, &comment.Like, &comment.CreatedDate, &comment.Uid, &comment.Pid)
+		checkErr(err)
+
+		// get username of comment
+		preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
+		checkErr(err)
+		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
+
+		
+		finalArray = append(finalArray, comment)
+	}
+
+	return finalArray
 }
 
 
