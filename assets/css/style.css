@@ -82,6 +82,12 @@ button {
     margin-left: 10px;
     margin-top: 10px;
     font-size: 18px;
+    display: -webkit-box;
+  
+
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
 }
 .publicationImage {
     max-width: 28%;

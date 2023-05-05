@@ -2,9 +2,7 @@ package publications
 
 import (
 	"bytes"
-	"database/sql"
 	"html/template"
-	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -12,53 +10,13 @@ import (
 /*
 Take the id of a publication to give a 70% wide and 150px tall card of the publication
 */
-func MakePublicationHomePageTemplate(idPublication string) template.HTML {
-	publicationTemplate := PublicationData{}
+func MakePublicationHomePageTemplate(idPublication int) template.HTML {
 
-	db, err := sql.Open("sqlite3", "./database.db")
-	checkErr(err)
-	defer db.Close()
-
-	// Get the publication from the db
-	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?;")
-	checkErr(err)
-	row := preparedRequest.QueryRow(idPublication)
-	row.Scan(&publicationTemplate.Pid, &publicationTemplate.Title, &publicationTemplate.Content, &publicationTemplate.ImageLink,
-		&publicationTemplate.UpvoteNumber, &publicationTemplate.CreatedDate, &publicationTemplate.Uid)
-
-	// isThereImage
-	if publicationTemplate.ImageLink != "" {
-		publicationTemplate.IsThereImage = true
-	} else {
-		publicationTemplate.IsThereImage = false
-	}
-
-	// get Username
-	preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
-	checkErr(err)
-	preparedRequest.QueryRow(publicationTemplate.Uid).Scan(&publicationTemplate.Username)
-
-	// get number of comment
-	preparedRequest, err = db.Prepare("SELECT COUNT(*) FROM Comments WHERE pid = ?;")
-	checkErr(err)
-	preparedRequest.QueryRow(publicationTemplate.Pid).Scan(&publicationTemplate.CommentNumber)
-
-	// get tags
-	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?")
-	checkErr(err)
-	rows, err := preparedRequest.Query(publicationTemplate.Pid)
-	checkErr(err)
-	var tagArray []string
-	for rows.Next() {
-		var tag string
-		err = rows.Scan(&tag)
-		tagArray = append(tagArray, tag)
-	}
-	publicationTemplate.Tags = makeTags(tagArray)
+	publicationData := makePublicationWithId(idPublication)
 
 	tpl := new(bytes.Buffer)
 	tplRaw := template.Must(template.ParseFiles("templates/publicationTemplate.html"))
-	err = tplRaw.Execute(tpl, publicationTemplate)
+	err := tplRaw.Execute(tpl, publicationData)
 	checkErr(err)
 	tplString := tpl.String()
 	return template.HTML(tplString)
@@ -93,10 +51,4 @@ func makeTags(tags []string) template.HTML {
 	}
 
 	return template.HTML(finalString)
-}
-
-func checkErr(err error) {
-	if err != nil {
-		log.Panic(err)
-	}
 }

@@ -14,6 +14,7 @@ import (
 type indexPageData struct {
 	Publication01 template.HTML
 	Publication02 template.HTML
+	Publication03 template.HTML
 }
 
 func main() {
@@ -23,14 +24,16 @@ func main() {
 	// test()
 
 	indexData := indexPageData{
-		Publication01: publications.MakePublicationHomePageTemplate("1"),
-		Publication02: publications.MakePublicationHomePageTemplate("2"),
+		Publication01: publications.MakePublicationHomePageTemplate(1),
+		Publication02: publications.MakePublicationHomePageTemplate(2),
+		Publication03: publications.MakePublicationHomePageTemplate(3),
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		homePage := template.Must(template.ParseFiles("templates/index.html"))
 
-		homePage.Execute(w, indexData)
+		err := homePage.Execute(w, indexData)
+		if err!=nil{log.Panic(err)}
 	})
 	http.HandleFunc("/publication", publications.HandlePublication)
 
