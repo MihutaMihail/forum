@@ -3,6 +3,7 @@ body {
 }
 
 button {
+    color: inherit;
     background-color: transparent;
     border-width: 0;
     font-family: inherit;
@@ -120,3 +121,81 @@ button {
     text-decoration: underline;
 }
 
+
+/* PUBLICATION PAGE */
+.publicationPage {
+    color: rgb(223, 220, 217); 
+    background-color: rgb(63, 63, 68);
+    width: 70%;
+    border-radius: 5px;
+    border: 5px solid rgb(29, 29, 29);
+}
+.publicationPageHeader {
+    border-bottom: 3px solid rgba(29, 29, 29, 0.419);
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+.publicationPageFirstLine {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.publicationPageTitle {
+    font-size: 26px;
+    font-weight: 800;
+}
+.publicationPageTopLeft {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: rgb(161, 161, 167);
+}
+.publicationPageUsername {
+    margin-right: 10px;
+}
+.publicationPageContent {
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+.publicationPageLowBar {
+    display: flex;
+    margin-top: 5px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    align-items: center;
+}
+.publicationPageImage {
+    max-width: 90%;
+    max-height: 2000px;
+    margin-left: 10px;
+    border: 3px solid rgb(223, 220, 217);
+    border-radius: 3px;
+}
+.publicationPageSeparator {
+    background-color: rgba(29, 29, 29, 0.419);
+    width: 100%;
+}
+.publicationPageSortComment {
+    padding-top: 10px;
+    padding-left: 20px;
+    padding-bottom: 10px;
+}
+.publicationPageSortCommentBtn {
+    padding: 5px;
+    border-radius: 5px;
+}
+.publicationPageSortCommentBtn:hover {
+    background-color: rgb(161, 161, 167);
+}
+.publicationPageSortCommentBtnSelected {
+    background-color: black;
+}
+.publicationPageComments {
+    padding-top: 10px;
+    height: 100px;
+}
+.publicationPageComment {
+    margin-left: 1%;
+    width: 98%;
+    border: 3px solid rgba(29, 29, 29, 0.419);
+}

@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	posts         []PublicationTemplateData
+	posts         []publicationTemplateData
 	existingPosts = make(map[int]bool)
 )
 
@@ -16,7 +16,7 @@ var (
 // SELECT
 //
 
-func GetAllPosts() []PublicationTemplateData {
+func GetAllPosts() []publicationTemplateData {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -29,7 +29,7 @@ func GetAllPosts() []PublicationTemplateData {
 
 	// Store the select posts
 	for rows.Next() {
-		var post PublicationTemplateData
+		var post publicationTemplateData
 		err := rows.Scan(
 			&post.IdPublication, &post.Title, &post.Description, &post.ImageLink,
 			&post.UpvoteNumber, &post.CreatedDate, &post.UsernameId)
@@ -55,20 +55,20 @@ func GetAllPosts() []PublicationTemplateData {
 	return posts
 }
 
-func GetPostByID(id int) PublicationTemplateData {
+func GetPostByID(id int) publicationTemplateData {
 	for _, post := range posts {
 		if post.IdPublication == id {
 			return post
 		}
 	}
-	return PublicationTemplateData{}
+	return publicationTemplateData{}
 }
 
 //
 // INSERT
 //
 
-func InsertPost(post PublicationTemplateData) error {
+func InsertPost(post publicationTemplateData) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -94,7 +94,7 @@ func InsertPost(post PublicationTemplateData) error {
 // DELETE
 //
 
-func DeletePost(post PublicationTemplateData) error {
+func DeletePost(post publicationTemplateData) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -132,7 +132,7 @@ func deleteFromArray(id int) {
 // UPDATE
 //
 
-func UpdatePost(post PublicationTemplateData) error {
+func UpdatePost(post publicationTemplateData) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)

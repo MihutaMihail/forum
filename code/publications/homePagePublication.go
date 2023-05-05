@@ -9,7 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type PublicationTemplateData struct {
+type publicationTemplateData struct {
 	IdPublication int
 	Title         string
 	Description   string
@@ -25,13 +25,10 @@ type PublicationTemplateData struct {
 }
 
 /*
-And it's at this moment that Fafa realized. There is no overloading (or even default variables) in go.
-So, PLEASE, pass an empty string if the post don't have an image, and sorry
-Will only need the id to access the database in the future
+Take the id of a publication to give a 70% wide and 150px tall card of the publication
 */
-
 func MakePublicationHomePageTemplate(idPublication string) template.HTML {
-	publicationTemplate := PublicationTemplateData{}
+	publicationTemplate := publicationTemplateData{}
 
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -75,12 +72,9 @@ func MakePublicationHomePageTemplate(idPublication string) template.HTML {
 	publicationTemplate.Tags = makeTags(tagArray)
 
 	tpl := new(bytes.Buffer)
-
 	tplRaw := template.Must(template.ParseFiles("templates/publicationTemplate.html"))
-
 	err = tplRaw.Execute(tpl, publicationTemplate)
 	checkErr(err)
-
 	tplString := tpl.String()
 	return template.HTML(tplString)
 }
