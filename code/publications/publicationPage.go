@@ -8,28 +8,28 @@ import (
 )
 
 type publicationData struct {
-	pid          int
-	title        string
-	content      string
-	imageLink    string
-	upvoteNumber int
-	createdDate  string
-	uid          string
+	Pid          int
+	Title        string
+	Content      string
+	ImageLink    string
+	UpvoteNumber int
+	CreatedDate  string
+	Uid          string
 
-	isThereImage       bool
-	username           string
-	commentNumber      int
-	tags               template.HTML
-	comments           []commentData
-	sortedByPertinance bool
+	IsThereImage       bool
+	Username           string
+	CommentNumber      int
+	Tags               template.HTML
+	Comments           []commentData
+	SortedByPertinance bool
 }
 type commentData struct {
-	cid         int
-	content     string
-	like        int
-	createdDate string
-	uid         int
-	pid         int
+	Cid         int
+	Content     string
+	Like        int
+	CreatedDate string
+	Uid         int
+	Pid         int
 
 	username string
 }
@@ -46,15 +46,44 @@ func HandlePublication(w http.ResponseWriter, r *http.Request) /*template.HTML*/
 	publicationData := publicationData{}
 
 	r.ParseForm()
-	publicationData.pid, err = strconv.Atoi(r.FormValue("idPublication"))
+	publicationData.Pid, err = strconv.Atoi(r.FormValue("idPublication"))
 	checkErr(err)
 
 	// Get the publication from the db
 	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?;")
 	checkErr(err)
-	row := preparedRequest.QueryRow(publicationData.pid)
-	row.Scan(&publicationData.pid, &publicationData.title, &publicationData.content, &publicationData.imageLink, &publicationData.upvoteNumber, &publicationData.createdDate, &publicationData.uid)
+	row := preparedRequest.QueryRow(publicationData.Pid)
+	row.Scan(&publicationData.Pid, &publicationData.Title, &publicationData.Content, &publicationData.ImageLink, &publicationData.UpvoteNumber, &publicationData.CreatedDate, &publicationData.Uid)
 
+	// isThereImage
+	if publicationData.ImageLink != "" {
+		publicationData.IsThereImage = true
+	} else {
+		publicationData.IsThereImage = false
+	}
+	
+	// get username
+	preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
+	checkErr(err)
+	preparedRequest.QueryRow(publicationData.Uid).Scan(&publicationData.Username)
+
+	// get number of comment
+	preparedRequest, err = db.Prepare("SELECT COUNT(*) FROM Comments WHERE pid = ?;")
+	checkErr(err)
+	preparedRequest.QueryRow(publicationData.Pid).Scan(&publicationData.CommentNumber)
+
+	// get tags
+	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?")
+	checkErr(err)
+	rows, err := preparedRequest.Query(publicationData.Pid)
+	checkErr(err)
+	var tagArray []string
+	for rows.Next() {
+		var tag string
+		err = rows.Scan(&tag)
+		tagArray = append(tagArray, tag)
+	}
+	publicationData.Tags = makeTags(tagArray)
 
 
 		//
@@ -69,5 +98,6 @@ func HandlePublication(w http.ResponseWriter, r *http.Request) /*template.HTML*/
 	
 	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
 	
-	tpl.Execute(w, publicationData)
+	err = tpl.Execute(w, publicationData)
+	checkErr(err)
 }
