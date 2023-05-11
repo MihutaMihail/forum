@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"forum/code/publications"
+	"forum/code/testcrud"
 	"html/template"
 	"log"
 	"net/http"
@@ -23,18 +24,21 @@ func main() {
 
 	// test()
 
-	indexData := indexPageData{
-		Publication01: publications.MakePublicationHomePageTemplate(1),
-		Publication02: publications.MakePublicationHomePageTemplate(2),
-		Publication03: publications.MakePublicationHomePageTemplate(3),
-	}
+	http.HandleFunc("/", testcrud.HandleAllPosts)
+	
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		homePage := template.Must(template.ParseFiles("templates/index.html"))
+	 //
+    // TEST CRUD
+    //
+    http.Handle("/testcrud/uploads/", http.StripPrefix("/testcrud/uploads/", http.FileServer(http.Dir("testcrud/uploads"))))
 
-		err := homePage.Execute(w, indexData)
-		if err!=nil{log.Panic(err)}
-	})
+    http.HandleFunc("/testcrud", testcrud.HandleIndex)
+    http.HandleFunc("/testFormPost", testcrud.HandleFormPost)
+    http.HandleFunc("/testSubmitForm", testcrud.HandleSubmitForm)
+    http.HandleFunc("/testPost", testcrud.HandlePost)
+    http.HandleFunc("/testDeletePost", testcrud.HandleDeletePost)
+
+    // TEST CRUD
 	http.HandleFunc("/publication", publications.HandlePublication)
 
 	fmt.Println("Serving on port 8080")

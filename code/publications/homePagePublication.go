@@ -22,7 +22,7 @@ func MakePublicationHomePageTemplate(idPublication int) template.HTML {
 	return template.HTML(tplString)
 }
 
-func makeTags(tags []string) template.HTML {
+func MakeTags(tags []string) template.HTML {
 	finalString := ""
 	for _, tag := range tags {
 		finalString += "<div class=\"publicationTag\" style=\"background-color: "

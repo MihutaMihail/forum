@@ -75,7 +75,7 @@ func makePublicationWithId(idInt int) *PublicationData{
 		err = rows.Scan(&tag)
 		tagArray = append(tagArray, tag)
 	}
-	publicationData.Tags = makeTags(tagArray)
+	publicationData.Tags = MakeTags(tagArray)
 
 	publicationData.Comments = makeComments(publicationData.Pid)
 
