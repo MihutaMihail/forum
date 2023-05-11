@@ -40,6 +40,7 @@ func main() {
 
     // TEST CRUD
 	http.HandleFunc("/publication", publications.HandlePublication)
+	http.HandleFunc("/likes", publications.HandleLikes)
 
 	fmt.Println("Serving on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
