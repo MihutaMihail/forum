@@ -91,12 +91,12 @@ func alreadyALike(likeData LikeData, db *sql.DB) {
 		_, err = db.Exec("DELETE FROM Likes WHERE uid = ? AND ((pid = ? AND pid != 0) OR (cid = ? AND cid != 0))", likeData.Uid, likeData.Pid, likeData.Cid)
 		checkErr(err)
 
-		updateLikeCounter(likeData, db, -1) // -1 because removing a like does the opposite of liking, -1
+		updateLikeCounter(likeData, db)
 	} else { // then we should switch from like to dislike, or other way around
 		_, err = db.Exec("UPDATE Likes SET isLike = ? WHERE uid = ? AND ((pid = ? AND pid != 0) OR (cid = ? AND cid != 0))", !oldInteraction, likeData.Uid, likeData.Pid, likeData.Cid)
 		checkErr(err)
 
-		updateLikeCounter(likeData, db, 2) // 2 because you don't dislike anymore (+1) and like instead (+1) for example
+		updateLikeCounter(likeData, db)
 	}
 }
 
@@ -104,42 +104,45 @@ func addLikeOrDislike(likeData LikeData, db *sql.DB) {
 	_, err := db.Exec("INSERT INTO Likes (uid, pid, cid, isLike) VALUES (?, ?, ?, ?)", likeData.Uid, likeData.Pid, likeData.Cid, likeData.IsLike)
 	checkErr(err)
 
-	updateLikeCounter(likeData, db, 1)
+	updateLikeCounter(likeData, db)
 }
 
 
 /*
  change the likeCounter on the publication or comment by the amount in case of like, -amount in case of dislike
 */
-func updateLikeCounter(likeData LikeData, db *sql.DB, amount int) {
-	var oldLikesNumber int
-	var newLikesNumber int
-	var preparedRequest *sql.Stmt
+/*
+// let's just count
+func updateLikeCounter(likeData LikeData, db *sql.DB) {
+	var finalResult int
+	var rows *sql.Rows
 	var err error
 
-	// get comment/publication's likes
 	if likeData.Cid == 0 {
-		preparedRequest, err = db.Prepare("SELECT like FROM Publications WHERE pid = ?;")
+		preparedRequest, err := db.Prepare("SELECT isLike FROM Likes WHERE pid = ?")
+		checkErr(err)
+		rows, err = preparedRequest.Query(likeData.Pid)
 	} else {
-		preparedRequest, err = db.Prepare("SELECT like FROM Comments WHERE cid = ?;")
+		preparedRequest, err := db.Prepare("SELECT isLike FROM Likes WHERE cid = ?")
+		checkErr(err)
+		rows, err = preparedRequest.Query(likeData.Cid)
 	}
-	checkErr(err)
-	preparedRequest.QueryRow(likeData.Pid).Scan(&oldLikesNumber)
-
-	// if like or dislike
-	if likeData.IsLike {
-		newLikesNumber = oldLikesNumber + amount
-	} else {
-		newLikesNumber = oldLikesNumber - amount
+	for rows.Next() {
+		var isLikeInt int
+		err = rows.Scan(&isLikeInt)
+		checkErr(err)
+		if isLikeInt == 1 {
+			finalResult++
+		} else {
+			finalResult--
+		}
 	}
 
-	// set comment/publication's likes
 	if likeData.Cid == 0 {
-		_, err = db.Exec("UPDATE Publications SET like = ? WHERE pid = ?", newLikesNumber, likeData.Pid)
+		_, err = db.Exec("UPDATE Publications SET like = ? WHERE pid = ?", finalResult, likeData.Pid)
 	} else {
-		_, err = db.Exec("UPDATE Comments SET like = ? WHERE cid = ?", newLikesNumber, likeData.Cid)
+		_, err = db.Exec("UPDATE Comments SET like = ? WHERE cid = ?", finalResult, likeData.Cid)
 	}
-	fmt.Println(newLikesNumber, oldLikesNumber)
 	checkErr(err)
 }
 
