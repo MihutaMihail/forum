@@ -111,7 +111,6 @@ func addLikeOrDislike(likeData LikeData, db *sql.DB) {
 /*
  change the likeCounter on the publication or comment by the amount in case of like, -amount in case of dislike
 */
-/*
 // let's just count
 func updateLikeCounter(likeData LikeData, db *sql.DB) {
 	var finalResult int
