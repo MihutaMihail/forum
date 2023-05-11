@@ -3,6 +3,7 @@ package publications
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -52,6 +53,7 @@ func GetAllPosts() []PublicationData {
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
 	}
+
 	return posts
 }
 
@@ -68,7 +70,7 @@ func GetPostByID(id int) PublicationData {
 // INSERT
 //
 
-func InsertPost(post PublicationData) error {
+func InsertPost(post PublicationData, selectedTags []string) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -82,9 +84,23 @@ func InsertPost(post PublicationData) error {
 	defer query.Close()
 
 	// Execute query to INSERT
-	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.UpvoteNumber, post.CreatedDate, post.Uid)
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, 0, time.Now(), post.Uid)
 	if err != nil {
 		return err
+	}
+
+	// Get last POST which is current POST
+	posts := GetAllPosts()
+	lastPost := posts[len(posts)-1]
+
+	// Insert tags
+	for _, tag := range selectedTags {
+		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
+		checkErr(err)
+		defer query.Close()
+
+		_, err = query.Exec(tag, lastPost.Pid)
+		checkErr(err)
 	}
 
 	return nil
@@ -100,14 +116,27 @@ func DeletePost(post PublicationData) error {
 	checkErr(err)
 	defer db.Close()
 
-	// Prepare SQL query to INSERT into POSTS
+	// Prepare SQL query to DELETE from POSTS
 	query, err := db.Prepare("DELETE FROM publications WHERE pid=?")
 	if err != nil {
 		return err
 	}
 	defer query.Close()
 
-	// Execute query to INSERT
+	// Execute query to DELETE
+	_, err = query.Exec(post.Pid)
+	if err != nil {
+		return err
+	}
+
+	// Prepare SQL query to DELETE from TAGS
+	query, err = db.Prepare("DELETE FROM tags WHERE pid=?")
+	if err != nil {
+		return err
+	}
+	defer query.Close()
+
+	// Execute query to DELETE
 	_, err = query.Exec(post.Pid)
 	if err != nil {
 		return err
