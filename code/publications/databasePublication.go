@@ -41,7 +41,7 @@ func GetAllPosts() []PublicationData {
 		} else {
 			// Update existing posts
 			for i := range posts {
-				if posts[i].Uid == post.Uid {
+				if posts[i].Pid == post.Pid {
 					posts[i] = post
 					break
 				}

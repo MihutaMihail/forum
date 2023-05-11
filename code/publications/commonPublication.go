@@ -103,7 +103,6 @@ func makeComments(Pid int) []CommentData{
 		preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 		checkErr(err)
 		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
-
 		
 		finalArray = append(finalArray, comment)
 	}
