@@ -1,8 +1,7 @@
-package testcrud
+package publications
 
 import (
 	"database/sql"
-	"forum/code/publications"
 	"html/template"
 	"io"
 	"log"
@@ -15,30 +14,25 @@ type indexPageData struct {
 	Publications []template.HTML
 }
 
-func HandleIndex(w http.ResponseWriter, r *http.Request) {
-	homePage := template.Must(template.ParseFiles("./code/testcrud/index.html"))
-	homePage.Execute(w, "o")
-}
-
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
-	for _, post := range publications.GetAllPosts() {
-		publication := publications.MakePublicationHomePageTemplate(post.Pid)
+	for _, post := range GetAllPosts() {
+		publication := MakePublicationHomePageTemplate(post.Pid)
 		indexData.Publications = append(indexData.Publications, publication)
 	}
 
-	allPosts := template.Must(template.ParseFiles("./code/testcrud/allposts.html"))
+	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
 	allPosts.Execute(w, indexData)
 }
 
 func HandleFormPost(w http.ResponseWriter, r *http.Request) {
-	formPost := template.Must(template.ParseFiles("./code/testcrud/formPost.html"))
+	formPost := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
 	// Get the ID from the query parameters
 	idStr := r.URL.Query().Get("id")
 
 	// Change to CREATE POST
 	if idStr == "" {
-		var postEmpty publications.PublicationData
+		var postEmpty PublicationData
 		postEmpty.Pid = -1
 
 		formPost.Execute(w, postEmpty)
@@ -50,7 +44,7 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Retrieve the post from the database using the ID
-	post := publications.GetPostByID(id)
+	post := GetPostByID(id)
 	if post.Title == "" {
 		http.Error(w, "Post not found", http.StatusNotFound)
 		return
@@ -66,28 +60,12 @@ func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
-	publications.DeletePost(publications.GetPostByID(id))
-	http.Redirect(w, r, "/testAllPosts", http.StatusFound)
-}
-
-func HandlePost(w http.ResponseWriter, r *http.Request) {
-	id, err := getQueryID(w, r)
-	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
-		return
-	}
-	// Retrieve the post from the database using the ID
-	post := publications.GetPostByID(id)
-	if post.Title == "" {
-		http.Error(w, "Post not found", http.StatusNotFound)
-		return
-	}
-	showPost := template.Must(template.ParseFiles("./code/testcrud/post.html"))
-	showPost.Execute(w, post)
+	DeletePost(GetPostByID(id))
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
-	var post publications.PublicationData
+	var post PublicationData
 
 	file, header, err := r.FormFile("image")
 	if err != nil {
@@ -110,7 +88,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 		filename = header.Filename
 
 		// Save the file
-		out, err := os.Create("./code/testcrud/uploads/" + filename)
+		out, err := os.Create("./assets/uploads/" + filename)
 		if err != nil {
 			log.Println("Error creating file:", err)
 			http.Error(w, "Failed to create file", http.StatusInternalServerError)
@@ -133,22 +111,27 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db, err := sql.Open("sqlite3", "./database.db")
+	checkErr(err)
 	defer db.Close()
 
 	// Make tags
 	preparedRequest, err := db.Prepare("SELECT name FROM Tags WHERE pid = ?")
+	checkErr(err)
 	rows, err := preparedRequest.Query(post.Pid)
+	checkErr(err)
+
 	var tagArray []string
 	for rows.Next() {
 		var tag string
 		err = rows.Scan(&tag)
+		checkErr(err)
 		tagArray = append(tagArray, tag)
 	}
-	post.Tags = publications.MakeTags(tagArray)
+	post.Tags = MakeTags(tagArray)
 
-	publications.InsertPost(post)
+	InsertPost(post)
 
-	http.Redirect(w, r, "/testAllPosts", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func getQueryID(w http.ResponseWriter, r *http.Request) (int, error) {

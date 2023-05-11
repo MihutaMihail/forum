@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,14 +8,18 @@
     <title>Home</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-<body>
 
-    <div class="title">Wrottit</div>
-    <div class="mainFeed">
-    {{.Publication01}}
-    {{.Publication02}}
-    {{.Publication03}}
-    </div>
+<body>
+    <!-- TEMPORARY -->
+    <button><a href="/publicationForm">Create Post</a></button>
+    <!-- TEMPORARY -->
     
+    <div class="mainFeed">
+        {{ range .Publications }}
+        {{ . }}
+        {{ end }}
+    </div>
+
 </body>
+
 </html>
