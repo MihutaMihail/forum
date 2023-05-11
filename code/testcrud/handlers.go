@@ -82,7 +82,7 @@ func HandlePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Post not found", http.StatusNotFound)
 		return
 	}
-	showPost := template.Must(template.ParseFiles("./testcrud/post.html"))
+	showPost := template.Must(template.ParseFiles("./code/testcrud/post.html"))
 	showPost.Execute(w, post)
 }
 
@@ -110,7 +110,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 		filename = header.Filename
 
 		// Save the file
-		out, err := os.Create("./testcrud/uploads/" + filename)
+		out, err := os.Create("./code/testcrud/uploads/" + filename)
 		if err != nil {
 			log.Println("Error creating file:", err)
 			http.Error(w, "Failed to create file", http.StatusInternalServerError)
