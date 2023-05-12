@@ -3,6 +3,7 @@ package publications
 import (
 	"database/sql"
 	"encoding/json"
+	"forum/code/authentification"
 	"html/template"
 	"io"
 	"log"
@@ -34,6 +35,14 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 //
 // CREATE
 //
+
+func CheckHandleFormPost(w http.ResponseWriter, r *http.Request) {
+	if authentification.CheckSessionUid(w,r) == nil {
+		http.Redirect(w, r, "/publicationForm", http.StatusFound)
+	} else {
+		http.Redirect(w, r, "/", http.StatusNotFound)
+	}
+}
 
 func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	formPost := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
