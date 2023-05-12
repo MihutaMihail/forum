@@ -3,6 +3,7 @@ package publications
 import (
 	"database/sql"
 	"fmt"
+	"forum/code/authentification"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -21,9 +22,9 @@ request url be like ; /likes?id=25&isComment=true&isLike=false
 func HandleLikes(w http.ResponseWriter, r *http.Request) {
 	likeData := LikeData{Pid: 0, Cid: 0}
 
-	//uid := authentification.GetSessionUid(w,r) // TODO
+	uid := authentification.GetSessionUid(w,r).Value // TODO
 	
-	likeData.Uid = 1 //uid
+	likeData.Uid, _ = strconv.Atoi(uid)
 	var err error
 
 	// get pid or cid

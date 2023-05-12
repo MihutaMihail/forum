@@ -3,8 +3,10 @@ package publications
 import (
 	"database/sql"
 	"fmt"
+	"forum/code/authentification"
 	"html/template"
 	"log"
+	"net/http"
 	"strconv"
 )
 
@@ -95,21 +97,25 @@ func makePublicationWithId(idInt int, args ...string) *PublicationData {
 	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
 	checkErr(err)
 	rows, err := preparedRequest.Query(publicationData.Pid)
-	defer rows.Close()
 	checkErr(err)
+	defer rows.Close()
 	var tagArray []string
 	for rows.Next() {
 		var tag string
 		err = rows.Scan(&tag)
+		checkErr(err)
 		tagArray = append(tagArray, tag)
 	}
 	publicationData.Tags = MakeTags(tagArray)
 
 	//liked or not by session user
-	uid := 1 // getSessionUid                 // TODO
+	var w http.ResponseWriter
+	var r *http.Request
+	uid , _:= strconv.Atoi(authentification.GetSessionUid(w,r).Value)                 // TODO
 	preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
 	checkErr(err)
 	rows, err = preparedRequest.Query(uid, publicationData.Pid)
+	checkErr(err)
 	defer rows.Close()
 	for rows.Next() { // if there is a like, it will do one loop, else it will pass
 		var isLike int

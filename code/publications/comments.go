@@ -2,6 +2,7 @@ package publications
 
 import (
 	"database/sql"
+	"forum/code/authentification"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -29,7 +30,9 @@ func AddAComment(w http.ResponseWriter, r *http.Request) {
 	var err error
 	commentData := CommentData{}
 
-	commentData.Uid = 1 //getSessionUid   //TODO
+	cookie := authentification.GetSessionUid(w,r)
+
+	commentData.Uid, _ = strconv.Atoi(cookie.Value) //TODO
 	commentData.Pid, err = strconv.Atoi(r.URL.Query().Get("pid"))
 	commentData.Like = 0
 
