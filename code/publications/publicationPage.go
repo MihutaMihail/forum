@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func HandlePublication(w http.ResponseWriter, r *http.Request) /*template.HTML*/ {
+func HandlePublication(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Expected POST, found "+r.Method, http.StatusBadRequest) // 400
 		return                                                                 /*template.HTML("err 400: bad Request")*/
