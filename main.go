@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/publication", publications.HandlePublication)
 	http.HandleFunc("/likes", publications.HandleLikes)
 	http.HandleFunc("/addCommentBox", publications.MakeCommentBox)
+	http.HandleFunc("/sendComment", publications.AddAComment)
 	http.HandleFunc("/publicationForm", publications.HandleFormPost)
 	http.HandleFunc("/publicationSubmitForm", publications.HandleSubmitForm)
 	http.HandleFunc("/publicationDelete", publications.HandleDeletePost)

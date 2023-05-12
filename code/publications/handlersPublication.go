@@ -124,6 +124,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	rows, err := preparedRequest.Query(post.Pid)
 	checkErr(err)
+	defer rows.Close()
 
 	var tagArray []string
 	for rows.Next() {
