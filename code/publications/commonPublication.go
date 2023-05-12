@@ -21,6 +21,9 @@ type PublicationData struct {
 	Tags               template.HTML
 	Comments           []CommentData
 	SortedByPertinance bool
+
+	UpvoteClass string
+	DownvoteClass string
 }
 type CommentData struct {
 	Cid         int
@@ -31,6 +34,10 @@ type CommentData struct {
 	Pid         int
 
 	Username string
+
+	
+	UpvoteClass string
+	DownvoteClass string
 }
 
 func makePublicationWithId(idInt int) *PublicationData{
@@ -68,6 +75,7 @@ func makePublicationWithId(idInt int) *PublicationData{
 	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
 	checkErr(err)
 	rows, err := preparedRequest.Query(publicationData.Pid)
+	defer rows.Close()
 	checkErr(err)
 	var tagArray []string
 	for rows.Next() {
@@ -76,6 +84,24 @@ func makePublicationWithId(idInt int) *PublicationData{
 		tagArray = append(tagArray, tag)
 	}
 	publicationData.Tags = MakeTags(tagArray)
+
+	
+	//liked or not by session user
+	uid := 1 // getSessionUid                 // TODO
+	preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
+	checkErr(err)
+	rows, err = preparedRequest.Query(uid, publicationData.Pid)
+	defer rows.Close()
+	for rows.Next() { // if there is a like, it will do one loop, else it will pass
+		var isLike int
+		err = rows.Scan(&isLike)
+		checkErr(err)
+		if isLike == 1 { // upvote or downvote
+			publicationData.UpvoteClass = "clickedVote"
+		} else {
+			publicationData.DownvoteClass = "clickedVote"
+		}
+	}
 
 	publicationData.Comments = makeComments(publicationData.Pid)
 
@@ -93,6 +119,7 @@ func makeComments(Pid int) []CommentData{
 	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;") 
 	checkErr(err)
 	rows, err := preparedRequest.Query(Pid)
+	defer rows.Close()
 	// for each results, get the comment data
 	for rows.Next() {
 		var comment CommentData
@@ -104,6 +131,24 @@ func makeComments(Pid int) []CommentData{
 		checkErr(err)
 		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
 		
+		
+		//liked or not by session user
+		uid := 1 // getSessionUid                 // TODO
+		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (cid = ? AND cid != 0);")
+		checkErr(err)
+		rows, err = preparedRequest.Query(uid, comment.Cid)
+		defer rows.Close()
+		for rows.Next() { // if there is a like, it will do one loop, else it will pass
+			var isLike int
+			err = rows.Scan(&isLike)
+			checkErr(err)
+			if isLike == 1 { // upvote or downvote
+				comment.UpvoteClass = "clickedVote"
+			} else {
+				comment.DownvoteClass = "clickedVote"
+			}
+		}
+
 		finalArray = append(finalArray, comment)
 	}
 
