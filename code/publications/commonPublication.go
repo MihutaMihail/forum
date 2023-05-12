@@ -19,6 +19,7 @@ type PublicationData struct {
 	Username           string
 	CommentNumber      int
 	Tags               template.HTML
+	TagsString         []string
 	Comments           []CommentData
 	SortedByPertinance bool
 }
@@ -33,7 +34,7 @@ type CommentData struct {
 	Username string
 }
 
-func makePublicationWithId(idInt int) *PublicationData{
+func makePublicationWithId(idInt int) *PublicationData {
 	// open the db
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -53,7 +54,7 @@ func makePublicationWithId(idInt int) *PublicationData{
 	} else {
 		publicationData.IsThereImage = false
 	}
-	
+
 	// get username
 	preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 	checkErr(err)
@@ -83,14 +84,14 @@ func makePublicationWithId(idInt int) *PublicationData{
 	return &publicationData
 }
 
-func makeComments(Pid int) []CommentData{
+func makeComments(Pid int) []CommentData {
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 	var finalArray []CommentData
 
 	// get all comments
-	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;") 
+	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;")
 	checkErr(err)
 	rows, err := preparedRequest.Query(Pid)
 	// for each results, get the comment data
@@ -103,13 +104,12 @@ func makeComments(Pid int) []CommentData{
 		preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 		checkErr(err)
 		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
-		
+
 		finalArray = append(finalArray, comment)
 	}
 
 	return finalArray
 }
-
 
 func checkErr(err error) {
 	if err != nil {

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type indexPageData struct {
@@ -58,6 +59,26 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Post not found", http.StatusNotFound)
 		return
 	}
+
+	// Database - Get Tags
+	db, err := sql.Open("sqlite3", "./database.db")
+	checkErr(err)
+	defer db.Close()
+
+	preparedRequest, err := db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
+	checkErr(err)
+	rows, err := preparedRequest.Query(post.Pid)
+	checkErr(err)
+	defer rows.Close()
+
+	var tagArray []string
+	for rows.Next() {
+		var tag string
+		err = rows.Scan(&tag)
+		checkErr(err)
+		tagArray = append(tagArray, tag)
+	}
+	post.TagsString = tagArray
 
 	// Change to UPDATE POST
 	formPost.Execute(w, post)
@@ -115,24 +136,9 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal([]byte(selectedTagsJSON), &selectedTags)
 	checkErr(err)
 
-	db, err := sql.Open("sqlite3", "./database.db")
-	checkErr(err)
-	defer db.Close()
-
-	// Make tags
-	preparedRequest, err := db.Prepare("SELECT name FROM Tags WHERE pid = ?")
-	checkErr(err)
-	rows, err := preparedRequest.Query(post.Pid)
-	checkErr(err)
-
-	var tagArray []string
-	for rows.Next() {
-		var tag string
-		err = rows.Scan(&tag)
-		checkErr(err)
-		tagArray = append(tagArray, tag)
+	for i, tag := range selectedTags {
+		selectedTags[i] = strings.TrimSuffix(tag, "x")
 	}
-	post.Tags = MakeTags(tagArray)
 
 	InsertPost(post, selectedTags)
 
