@@ -21,7 +21,8 @@ request url be like ; /likes?id=25&isComment=true&isLike=false
 func HandleLikes(w http.ResponseWriter, r *http.Request) {
 	likeData := LikeData{Pid :0, Cid:0}
 
-	// uid = getSessionUid()  // TODO
+	//uid := authentification.GetSessionUid(w,r) // TODO
+	
 	likeData.Uid = 1 //uid
 	var err error
 
@@ -111,7 +112,6 @@ func addLikeOrDislike(likeData LikeData, db *sql.DB) {
 /*
  change the likeCounter on the publication or comment by the amount in case of like, -amount in case of dislike
 */
-/*
 // let's just count
 func updateLikeCounter(likeData LikeData, db *sql.DB) {
 	var finalResult int
