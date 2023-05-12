@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"forum/code/authentification"
 	"forum/code/publications"
 	"log"
 	"net/http"
@@ -20,9 +21,16 @@ func main() {
 	http.HandleFunc("/publication", publications.HandlePublication)
 	http.HandleFunc("/likes", publications.HandleLikes)
 	http.HandleFunc("/addCommentBox", publications.MakeCommentBox)
+	http.HandleFunc("/sendComment", publications.AddAComment)
 	http.HandleFunc("/publicationForm", publications.HandleFormPost)
 	http.HandleFunc("/publicationSubmitForm", publications.HandleSubmitForm)
 	http.HandleFunc("/publicationDelete", publications.HandleDeletePost)
+
+	http.HandleFunc("/login", authentification.Login)
+	http.HandleFunc("/loginGet", authentification.LoginGet)
+	http.HandleFunc("/register", authentification.Register)
+	http.HandleFunc("/print", authentification.Print)
+	http.HandleFunc("/registerGet", authentification.RegisterGet)
 
 	fmt.Println("Serving on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))

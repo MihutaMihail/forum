@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"strconv"
 )
 
 type PublicationData struct {
@@ -42,12 +43,8 @@ type CommentData struct {
 	DownvoteClass string
 }
 
-const commentBoxTemplate template.HTML = template.HTML("<div class=\"commentBox\">" +
-	"<form method=`\"POST\" action=\"/sendComment?pid={{.Pid}}\">" +
-	"	<textarea class=\"commentTyping\" name=\"content\"></textarea>" +
-	"	<input class=\"commentSend\" type=\"submit\">" +
-	"</form>" +
-	"</div>")
+const commentBoxTemplateFirst string = "<div class=\"commentBox\"><form method=\"POST\" action=\"/sendComment?pid="
+const commentBoxTemplateSecond string = "\">	<textarea class=\"commentTyping\" name=\"content\"></textarea><input class=\"commentSend\" type=\"submit\"></form></div>"
 
 /*
 Accept any args :
@@ -63,9 +60,9 @@ func makePublicationWithId(idInt int, args ...string) *PublicationData {
 
 	for _, arg := range args {
 		switch arg {
-		case "addCommentBox":
-			publicationData.CreateCommentBox = commentBoxTemplate
-			break
+		case "addCommentBox": 
+			publicationData.CreateCommentBox = template.HTML(commentBoxTemplateFirst + strconv.Itoa(idInt) + commentBoxTemplateSecond)
+			break;
 		default:
 			fmt.Println("Warning : invalid arg at call to makePublicationWithId")
 		}
@@ -157,11 +154,11 @@ func makeComments(Pid int) []CommentData {
 		uid := 1 // getSessionUid                 // TODO
 		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (cid = ? AND cid != 0);")
 		checkErr(err)
-		rows, err = preparedRequest.Query(uid, comment.Cid)
-		defer rows.Close()
-		for rows.Next() { // if there is a like, it will do one loop, else it will pass
+		rowsLike, err := preparedRequest.Query(uid, comment.Cid)
+		defer rowsLike.Close()
+		for rowsLike.Next() { // if there is a like, it will do one loop, else it will pass
 			var isLike int
-			err = rows.Scan(&isLike)
+			err = rowsLike.Scan(&isLike)
 			checkErr(err)
 			if isLike == 1 { // upvote or downvote
 				comment.UpvoteClass = "clickedVote"
