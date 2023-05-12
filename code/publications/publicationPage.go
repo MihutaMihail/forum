@@ -16,7 +16,7 @@ func HandlePublication(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	id, err := strconv.Atoi(r.FormValue("idPublication"))
 	checkErr(err)
-	publicationData := makePublicationWithId(id)
+	publicationData := makePublicationWithId(id, w, r)
 
 	// create the template and returns it. For when the handler will change to add the website interface
 	//

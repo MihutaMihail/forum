@@ -52,7 +52,7 @@ const commentBoxTemplateSecond string = "\">	<textarea class=\"commentTyping\" n
 Accept any args :
   - addCommentBox : add the comment box to write a comment
 */
-func makePublicationWithId(idInt int, args ...string) *PublicationData {
+func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, args ...string) *PublicationData {
 	// open the db
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -109,32 +109,32 @@ func makePublicationWithId(idInt int, args ...string) *PublicationData {
 	publicationData.Tags = MakeTags(tagArray)
 
 	//liked or not by session user
-	var w http.ResponseWriter
-	var r *http.Request
-	uid , _:= strconv.Atoi(authentification.GetSessionUid(w,r).Value)                 // TODO
-	preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
-	checkErr(err)
-	rows, err = preparedRequest.Query(uid, publicationData.Pid)
-	checkErr(err)
-	defer rows.Close()
-	for rows.Next() { // if there is a like, it will do one loop, else it will pass
-		var isLike int
-		err = rows.Scan(&isLike)
+	uid  := authentification.GetSessionUid(w, r)
+	if uid != 0 {
+		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
 		checkErr(err)
-		if isLike == 1 { // upvote or downvote
-			publicationData.UpvoteClass = "clickedVote"
-		} else {
-			publicationData.DownvoteClass = "clickedVote"
+		rows, err = preparedRequest.Query(uid, publicationData.Pid)
+		checkErr(err)
+		defer rows.Close()
+		for rows.Next() { // if there is a like, it will do one loop, else it will pass
+			var isLike int
+			err = rows.Scan(&isLike)
+			checkErr(err)
+			if isLike == 1 { // upvote or downvote
+				publicationData.UpvoteClass = "clickedVote"
+			} else {
+				publicationData.DownvoteClass = "clickedVote"
+			}
 		}
 	}
 
-	publicationData.Comments = makeComments(publicationData.Pid)
+	publicationData.Comments = makeComments(publicationData.Pid, w, r)
 
 	// fmt.Println(publicationData.Comments[0].Content)
 	return &publicationData
 }
 
-func makeComments(Pid int) []CommentData {
+func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData {
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
@@ -157,23 +157,27 @@ func makeComments(Pid int) []CommentData {
 		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
 
 		//liked or not by session user
-		uid := 1 // getSessionUid                 // TODO
-		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (cid = ? AND cid != 0);")
-		checkErr(err)
-		rowsLike, err := preparedRequest.Query(uid, comment.Cid)
-		defer rowsLike.Close()
-		for rowsLike.Next() { // if there is a like, it will do one loop, else it will pass
-			var isLike int
-			err = rowsLike.Scan(&isLike)
+		
+		uid := authentification.GetSessionUid(w, r)
+		if uid != 0 {
+			preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (cid = ? AND cid != 0);")
 			checkErr(err)
-			if isLike == 1 { // upvote or downvote
-				comment.UpvoteClass = "clickedVote"
-			} else {
-				comment.DownvoteClass = "clickedVote"
+			rowsLike, err := preparedRequest.Query(uid, comment.Cid)
+			defer rowsLike.Close()
+			for rowsLike.Next() { // if there is a like, it will do one loop, else it will pass
+				var isLike int
+				err = rowsLike.Scan(&isLike)
+				checkErr(err)
+				if isLike == 1 { // upvote or downvote
+					comment.UpvoteClass = "clickedVote"
+				} else {
+					comment.DownvoteClass = "clickedVote"
+				}
 			}
 		}
 
 		finalArray = append(finalArray, comment)
+
 	}
 
 	return finalArray

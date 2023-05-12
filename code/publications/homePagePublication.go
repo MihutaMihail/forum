@@ -3,6 +3,7 @@ package publications
 import (
 	"bytes"
 	"html/template"
+	"net/http"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -10,9 +11,9 @@ import (
 /*
 Take the id of a publication to give a 70% wide and 150px tall card of the publication
 */
-func MakePublicationHomePageTemplate(idPublication int) template.HTML {
+func MakePublicationHomePageTemplate(idPublication int, w http.ResponseWriter, r *http.Request) template.HTML {
 
-	publicationData := makePublicationWithId(idPublication)
+	publicationData := makePublicationWithId(idPublication, w, r)
 
 	tpl := new(bytes.Buffer)
 	tplRaw := template.Must(template.ParseFiles("templates/publicationTemplate.html"))

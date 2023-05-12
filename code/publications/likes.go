@@ -22,9 +22,9 @@ request url be like ; /likes?id=25&isComment=true&isLike=false
 func HandleLikes(w http.ResponseWriter, r *http.Request) {
 	likeData := LikeData{Pid: 0, Cid: 0}
 
-	uid := authentification.GetSessionUid(w,r).Value // TODO
+	uid := authentification.GetSessionUid(w, r)
 	
-	likeData.Uid, _ = strconv.Atoi(uid)
+	likeData.Uid = uid
 	var err error
 
 	// get pid or cid
@@ -35,33 +35,37 @@ func HandleLikes(w http.ResponseWriter, r *http.Request) {
 		likeData.Pid, err = strconv.Atoi(r.URL.Query().Get("id"))
 		checkErr(err)
 	}
-
-	// get isLike
-	if r.URL.Query().Get("isLike") == "true" {
-		likeData.IsLike = true
-	} else {
-		likeData.IsLike = false
-	}
+	
 
 	// open the db
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
-	// now we check if there is already a like from user
-	preparedRequest, err := db.Prepare("SELECT COUNT(*) FROM Likes WHERE uid = ? AND ((pid = ? AND pid != 0) OR (cid = ? AND cid != 0))")
-	checkErr(err)
-	var tempNbLikes int
-	preparedRequest.QueryRow(likeData.Uid, likeData.Pid, likeData.Cid).Scan(&tempNbLikes)
+	
+	if uid != 0 {
+		// get isLike
+		if r.URL.Query().Get("isLike") == "true" {
+			likeData.IsLike = true
+		} else {
+			likeData.IsLike = false
+		}
 
-	if tempNbLikes > 1 { // would be not good
-		fmt.Println("WARNING : more than 1 like/dislike from user " + strconv.Itoa(likeData.Uid) + " at the publication/comment " + strconv.Itoa(likeData.Pid) + "/" + strconv.Itoa(likeData.Cid))
-	}
-	if tempNbLikes == 1 { // already has a like/dislike
-		alreadyALike(likeData, db)
-	}
-	if tempNbLikes == 0 { // doesn't have like/dislike, easy, just need to add
-		addLikeOrDislike(likeData, db)
+		// now we check if there is already a like from user
+		preparedRequest, err := db.Prepare("SELECT COUNT(*) FROM Likes WHERE uid = ? AND ((pid = ? AND pid != 0) OR (cid = ? AND cid != 0))")
+		checkErr(err)
+		var tempNbLikes int
+		preparedRequest.QueryRow(likeData.Uid, likeData.Pid, likeData.Cid).Scan(&tempNbLikes)
+
+		if tempNbLikes > 1 { // would be not good
+			fmt.Println("WARNING : more than 1 like/dislike from user " + strconv.Itoa(likeData.Uid) + " at the publication/comment " + strconv.Itoa(likeData.Pid) + "/" + strconv.Itoa(likeData.Cid))
+		}
+		if tempNbLikes == 1 { // already has a like/dislike
+			alreadyALike(likeData, db)
+		}
+		if tempNbLikes == 0 { // doesn't have like/dislike, easy, just need to add
+			addLikeOrDislike(likeData, db)
+		}
 	}
 
 	// if we're not on a publi, get the publi before refreshing it
@@ -69,7 +73,7 @@ func HandleLikes(w http.ResponseWriter, r *http.Request) {
 		likeData.Pid = getPidFromCid(likeData, db)
 	}
 	// recreate the publication (it refresh)
-	publicationData := makePublicationWithId(likeData.Pid)
+	publicationData := makePublicationWithId(likeData.Pid, w, r)
 	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
 	err = tpl.Execute(w, publicationData)
 	checkErr(err)

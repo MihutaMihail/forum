@@ -23,7 +23,7 @@ type indexPageData struct {
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
 	for _, post := range GetAllPosts() {
-		publication := MakePublicationHomePageTemplate(post.Pid)
+		publication := MakePublicationHomePageTemplate(post.Pid, w, r)
 		indexData.Publications = append(indexData.Publications, publication)
 	}
 
