@@ -48,12 +48,13 @@
         </div>
         <div class="publicationPageSeparator">
             <div>
-                <button class="publicationPageCreateComment">+ Répondre</button>
+                <a class="publicationPageCreateComment" href="/addCommentBox?pid={{.Pid}}">+ Répondre</a>
             </div>
             <div class="publicationPageSortComment">Trier par : 
                 <button class="publicationPageSortCommentBtn publicationPageSortCommentBtnSelected">Pertinance</button> | <button class="publicationPageSortCommentBtn">Nouveau</button>
             </div>
         </div>
+        {{.CreateCommentBox}}
 
         <div class="publicationPageComments">
             {{range .Comments}}

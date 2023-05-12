@@ -2,6 +2,7 @@ package publications
 
 import (
 	"database/sql"
+	"fmt"
 	"html/template"
 	"log"
 )
@@ -24,6 +25,7 @@ type PublicationData struct {
 
 	UpvoteClass string
 	DownvoteClass string
+	CreateCommentBox template.HTML
 }
 type CommentData struct {
 	Cid         int
@@ -40,13 +42,34 @@ type CommentData struct {
 	DownvoteClass string
 }
 
-func makePublicationWithId(idInt int) *PublicationData{
+const commentBoxTemplate template.HTML = template.HTML("<div class=\"commentBox\">" +
+	"<form method=`\"POST\" action=\"/sendComment?pid={{.Pid}}\">" +
+	"	<textarea class=\"commentTyping\" name=\"content\"></textarea>" +
+	"	<input class=\"commentSend\" type=\"submit\">" +
+	"</form>" +
+	"</div>")
+
+/*
+Accept any args :
+	- addCommentBox : add the comment box to write a comment
+*/
+func makePublicationWithId(idInt int, args ...string) *PublicationData{
 	// open the db
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
 	publicationData := PublicationData{}
+
+	for _, arg := range args {
+		switch arg {
+		case "addCommentBox": 
+			publicationData.CreateCommentBox = commentBoxTemplate
+			break;
+		default:
+			fmt.Println("Warning : invalid arg at call to makePublicationWithId")
+		}
+	}
 
 	// Get the publication from the db
 	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?;")
