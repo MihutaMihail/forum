@@ -133,11 +133,14 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 	selectedTagsJSON := r.FormValue("selected-tags")
 	var selectedTags []string
-	err = json.Unmarshal([]byte(selectedTagsJSON), &selectedTags)
-	checkErr(err)
 
-	for i, tag := range selectedTags {
-		selectedTags[i] = strings.TrimSuffix(tag, "x")
+	if selectedTagsJSON != "" {
+		err = json.Unmarshal([]byte(selectedTagsJSON), &selectedTags)
+		checkErr(err)
+
+		for i, tag := range selectedTags {
+			selectedTags[i] = strings.TrimSuffix(tag, "x")
+		}
 	}
 
 	InsertPost(post, selectedTags)
