@@ -19,15 +19,15 @@ type LikeData struct {
 request url be like ; /likes?id=25&isComment=true&isLike=false
 */
 func HandleLikes(w http.ResponseWriter, r *http.Request) {
-	likeData := LikeData{Pid :0, Cid:0}
+	likeData := LikeData{Pid: 0, Cid: 0}
 
-	// uid = getSessionUid()  // TODO
+	//uid := authentification.GetSessionUid(w,r) // TODO
+	
 	likeData.Uid = 1 //uid
 	var err error
 
-
 	// get pid or cid
-	if r.URL.Query().Get("isComment") == "true" {	
+	if r.URL.Query().Get("isComment") == "true" {
 		likeData.Cid, err = strconv.Atoi(r.URL.Query().Get("id"))
 		checkErr(err)
 	} else {
@@ -37,9 +37,9 @@ func HandleLikes(w http.ResponseWriter, r *http.Request) {
 
 	// get isLike
 	if r.URL.Query().Get("isLike") == "true" {
-		likeData.IsLike = true;
+		likeData.IsLike = true
 	} else {
-		likeData.IsLike = false;
+		likeData.IsLike = false
 	}
 
 	// open the db
@@ -54,7 +54,7 @@ func HandleLikes(w http.ResponseWriter, r *http.Request) {
 	preparedRequest.QueryRow(likeData.Uid, likeData.Pid, likeData.Cid).Scan(&tempNbLikes)
 
 	if tempNbLikes > 1 { // would be not good
-		fmt.Println("WARNING : more than 1 like/dislike from user " + strconv.Itoa(likeData.Uid) + " at the publication/comment " + strconv.Itoa(likeData.Pid) +"/"+ strconv.Itoa(likeData.Cid))
+		fmt.Println("WARNING : more than 1 like/dislike from user " + strconv.Itoa(likeData.Uid) + " at the publication/comment " + strconv.Itoa(likeData.Pid) + "/" + strconv.Itoa(likeData.Cid))
 	}
 	if tempNbLikes == 1 { // already has a like/dislike
 		alreadyALike(likeData, db)
@@ -80,7 +80,7 @@ func alreadyALike(likeData LikeData, db *sql.DB) {
 	var tempOldInteractionInt int
 	preparedRequest.QueryRow(likeData.Uid, likeData.Pid, likeData.Cid).Scan(&tempOldInteractionInt)
 	var oldInteraction bool
-	if (tempOldInteractionInt == 1) {
+	if tempOldInteractionInt == 1 {
 		oldInteraction = true
 	} else {
 		oldInteraction = false
@@ -106,7 +106,6 @@ func addLikeOrDislike(likeData LikeData, db *sql.DB) {
 
 	updateLikeCounter(likeData, db)
 }
-
 
 /*
  change the likeCounter on the publication or comment by the amount in case of like, -amount in case of dislike
@@ -144,7 +143,6 @@ func updateLikeCounter(likeData LikeData, db *sql.DB) {
 	}
 	checkErr(err)
 }
-
 
 /*
 self-explanatory

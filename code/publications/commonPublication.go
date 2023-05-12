@@ -21,11 +21,12 @@ type PublicationData struct {
 	Username           string
 	CommentNumber      int
 	Tags               template.HTML
+	TagsString         []string
 	Comments           []CommentData
 	SortedByPertinance bool
 
-	UpvoteClass string
-	DownvoteClass string
+	UpvoteClass      string
+	DownvoteClass    string
 	CreateCommentBox template.HTML
 }
 type CommentData struct {
@@ -38,8 +39,7 @@ type CommentData struct {
 
 	Username string
 
-	
-	UpvoteClass string
+	UpvoteClass   string
 	DownvoteClass string
 }
 
@@ -48,9 +48,9 @@ const commentBoxTemplateSecond string = "\">	<textarea class=\"commentTyping\" n
 
 /*
 Accept any args :
-	- addCommentBox : add the comment box to write a comment
+  - addCommentBox : add the comment box to write a comment
 */
-func makePublicationWithId(idInt int, args ...string) *PublicationData{
+func makePublicationWithId(idInt int, args ...string) *PublicationData {
 	// open the db
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -80,7 +80,7 @@ func makePublicationWithId(idInt int, args ...string) *PublicationData{
 	} else {
 		publicationData.IsThereImage = false
 	}
-	
+
 	// get username
 	preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 	checkErr(err)
@@ -105,7 +105,6 @@ func makePublicationWithId(idInt int, args ...string) *PublicationData{
 	}
 	publicationData.Tags = MakeTags(tagArray)
 
-	
 	//liked or not by session user
 	uid := 1 // getSessionUid                 // TODO
 	preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
@@ -129,14 +128,14 @@ func makePublicationWithId(idInt int, args ...string) *PublicationData{
 	return &publicationData
 }
 
-func makeComments(Pid int) []CommentData{
+func makeComments(Pid int) []CommentData {
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 	var finalArray []CommentData
 
 	// get all comments
-	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;") 
+	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;")
 	checkErr(err)
 	rows, err := preparedRequest.Query(Pid)
 	defer rows.Close()
@@ -150,8 +149,7 @@ func makeComments(Pid int) []CommentData{
 		preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 		checkErr(err)
 		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
-		
-		
+
 		//liked or not by session user
 		uid := 1 // getSessionUid                 // TODO
 		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (cid = ? AND cid != 0);")
@@ -174,7 +172,6 @@ func makeComments(Pid int) []CommentData{
 
 	return finalArray
 }
-
 
 func checkErr(err error) {
 	if err != nil {

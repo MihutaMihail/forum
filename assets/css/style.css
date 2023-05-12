@@ -21,6 +21,11 @@ button {
     cursor: pointer;
 }
 
+.top button {
+    background-color: white;
+    color: black;
+}
+
 .alignInside {
     display:flex;
     justify-content: space-evenly;
