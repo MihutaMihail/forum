@@ -2,6 +2,7 @@ package publications
 
 import (
 	"database/sql"
+	"encoding/json"
 	"html/template"
 	"io"
 	"log"
@@ -14,6 +15,10 @@ type indexPageData struct {
 	Publications []template.HTML
 }
 
+//
+// READ
+//
+
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
 	for _, post := range GetAllPosts() {
@@ -24,6 +29,10 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
 	allPosts.Execute(w, indexData)
 }
+
+//
+// CREATE
+//
 
 func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	formPost := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
@@ -52,16 +61,6 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 
 	// Change to UPDATE POST
 	formPost.Execute(w, post)
-}
-
-func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
-	id, err := getQueryID(w, r)
-	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
-		return
-	}
-	DeletePost(GetPostByID(id))
-	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
@@ -104,11 +103,17 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	r.ParseForm()
+
 	post.Title = r.FormValue("title")
 	post.Content = r.FormValue("content")
 	if file != nil {
 		post.ImageLink = filename
 	}
+	selectedTagsJSON := r.FormValue("selected-tags")
+	var selectedTags []string
+	err = json.Unmarshal([]byte(selectedTagsJSON), &selectedTags)
+	checkErr(err)
 
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
@@ -129,10 +134,28 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 	post.Tags = MakeTags(tagArray)
 
-	InsertPost(post)
+	InsertPost(post, selectedTags)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
+//
+// DELETE
+//
+
+func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
+	id, err := getQueryID(w, r)
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
+	DeletePost(GetPostByID(id))
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+//
+// General Functions
+//
 
 func getQueryID(w http.ResponseWriter, r *http.Request) (int, error) {
 	// Get the ID from the query parameters

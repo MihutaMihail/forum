@@ -86,6 +86,7 @@
             var selectedTag = selectedOption.value;
             var selectedTagsList = document.getElementById("selected-tags");
             var selectedTagsInput = document.getElementById("selected-tags-input");
+            
             if (!Array.from(selectedTagsList.getElementsByTagName("li")).map(li => li.innerText).includes(selectedTag)) {
                 var newTag = document.createElement("li");
                 newTag.innerText = selectedTag;
