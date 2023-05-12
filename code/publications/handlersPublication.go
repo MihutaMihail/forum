@@ -2,17 +2,23 @@ package publications
 
 import (
 	"database/sql"
+	"encoding/json"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type indexPageData struct {
 	Publications []template.HTML
 }
+
+//
+// READ
+//
 
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
@@ -24,6 +30,10 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
 	allPosts.Execute(w, indexData)
 }
+
+//
+// CREATE
+//
 
 func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	formPost := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
@@ -50,18 +60,28 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Database - Get Tags
+	db, err := sql.Open("sqlite3", "./database.db")
+	checkErr(err)
+	defer db.Close()
+
+	preparedRequest, err := db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
+	checkErr(err)
+	rows, err := preparedRequest.Query(post.Pid)
+	checkErr(err)
+	defer rows.Close()
+
+	var tagArray []string
+	for rows.Next() {
+		var tag string
+		err = rows.Scan(&tag)
+		checkErr(err)
+		tagArray = append(tagArray, tag)
+	}
+	post.TagsString = tagArray
+
 	// Change to UPDATE POST
 	formPost.Execute(w, post)
-}
-
-func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
-	id, err := getQueryID(w, r)
-	if err != nil {
-		http.Error(w, "Invalid post ID", http.StatusBadRequest)
-		return
-	}
-	DeletePost(GetPostByID(id))
-	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
@@ -104,35 +124,44 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	r.ParseForm()
+
 	post.Title = r.FormValue("title")
 	post.Content = r.FormValue("content")
 	if file != nil {
 		post.ImageLink = filename
 	}
-
-	db, err := sql.Open("sqlite3", "./database.db")
-	checkErr(err)
-	defer db.Close()
-
-	// Make tags
-	preparedRequest, err := db.Prepare("SELECT name FROM Tags WHERE pid = ?")
-	checkErr(err)
-	rows, err := preparedRequest.Query(post.Pid)
+	selectedTagsJSON := r.FormValue("selected-tags")
+	var selectedTags []string
+	err = json.Unmarshal([]byte(selectedTagsJSON), &selectedTags)
 	checkErr(err)
 
-	var tagArray []string
-	for rows.Next() {
-		var tag string
-		err = rows.Scan(&tag)
-		checkErr(err)
-		tagArray = append(tagArray, tag)
+	for i, tag := range selectedTags {
+		selectedTags[i] = strings.TrimSuffix(tag, "x")
 	}
-	post.Tags = MakeTags(tagArray)
 
-	InsertPost(post)
+	InsertPost(post, selectedTags)
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
+//
+// DELETE
+//
+
+func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
+	id, err := getQueryID(w, r)
+	if err != nil {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+		return
+	}
+	DeletePost(GetPostByID(id))
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+//
+// General Functions
+//
 
 func getQueryID(w http.ResponseWriter, r *http.Request) (int, error) {
 	// Get the ID from the query parameters

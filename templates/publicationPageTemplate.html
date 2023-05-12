@@ -37,9 +37,9 @@
 
         <div class="publicationPageLowBar">
             <div class="publicationPageUpvoteDownvote">
-                <a href="/likes?id={{.Pid}}&isComment=false&isLike=true"><img class="upvoteIcon"src="https://external-preview.redd.it/vWYcdynWxuFy6bKYpZwuw6KiNgYuBPM6daHCwWRs4mo.png?auto=webp&s=fe3bf857b3c9f1369aed1ea0bc5e1acd8ae39449" alt=""></a>
+                <a class="voteButtonPadding {{.UpvoteClass}}" href="/likes?id={{.Pid}}&isComment=false&isLike=true"><img class="upvoteIcon"src="https://external-preview.redd.it/vWYcdynWxuFy6bKYpZwuw6KiNgYuBPM6daHCwWRs4mo.png?auto=webp&s=fe3bf857b3c9f1369aed1ea0bc5e1acd8ae39449" alt=""></a>
                 <span>{{.UpvoteNumber}}</span>
-                <a href="/likes?id={{.Pid}}&isComment=false&isLike=false"><img class="downvoteIcon"src="https://lh6.googleusercontent.com/proxy/eIl4xyFenaeOotTx0bp9nXzEU8tPQ8c5r9hrkfvG43vToNsuAS_cmLU-IQ4kcvCxwtaV9tifecw8G6dEGbzbzA79YF3dQLIRgrmQEwsJZr3tk_oraWzBDdQNeL3ycGxBjaYZxx1R1ZSHHt0PUjsTIggpBZ6p1KyiT1g5ry4fME0=s0-d" alt=""></a>
+                <a class="voteButtonPadding {{.DownvoteClass}}" href="/likes?id={{.Pid}}&isComment=false&isLike=false"><img class="downvoteIcon"src="https://lh6.googleusercontent.com/proxy/eIl4xyFenaeOotTx0bp9nXzEU8tPQ8c5r9hrkfvG43vToNsuAS_cmLU-IQ4kcvCxwtaV9tifecw8G6dEGbzbzA79YF3dQLIRgrmQEwsJZr3tk_oraWzBDdQNeL3ycGxBjaYZxx1R1ZSHHt0PUjsTIggpBZ6p1KyiT1g5ry4fME0=s0-d" alt=""></a>
             </div>
             <div class="publicationPageCommentNumber">
                 <img class="commentIcon" src="https://www.freeiconspng.com/uploads/comment-png-17.png" alt="">
@@ -48,20 +48,21 @@
         </div>
         <div class="publicationPageSeparator">
             <div>
-                <button class="publicationPageCreateComment">+ Répondre</button>
+                <a class="publicationPageCreateComment" href="/addCommentBox?pid={{.Pid}}">+ Répondre</a>
             </div>
             <div class="publicationPageSortComment">Trier par : 
                 <button class="publicationPageSortCommentBtn publicationPageSortCommentBtnSelected">Pertinance</button> | <button class="publicationPageSortCommentBtn">Nouveau</button>
             </div>
         </div>
+        {{.CreateCommentBox}}
 
         <div class="publicationPageComments">
             {{range .Comments}}
                 <div class="publicationPageComment">
                     <div class="publicationPageCommentSide">
-                        <a href="/likes?id={{.Cid}}&isComment=true&isLike=true"><img class="upvoteIcon"src="https://external-preview.redd.it/vWYcdynWxuFy6bKYpZwuw6KiNgYuBPM6daHCwWRs4mo.png?auto=webp&s=fe3bf857b3c9f1369aed1ea0bc5e1acd8ae39449" alt=""></a>
+                        <a class="voteButtonPadding {{.UpvoteClass}}" href="/likes?id={{.Cid}}&isComment=true&isLike=true"><img class="upvoteIcon"src="https://external-preview.redd.it/vWYcdynWxuFy6bKYpZwuw6KiNgYuBPM6daHCwWRs4mo.png?auto=webp&s=fe3bf857b3c9f1369aed1ea0bc5e1acd8ae39449" alt=""></a>
                         <span class="publicationPageCommentLikeNb">{{.Like}}</span>
-                        <a href="/likes?id={{.Cid}}&isComment=true&isLike=false"><img class="downvoteIcon"src="https://lh6.googleusercontent.com/proxy/eIl4xyFenaeOotTx0bp9nXzEU8tPQ8c5r9hrkfvG43vToNsuAS_cmLU-IQ4kcvCxwtaV9tifecw8G6dEGbzbzA79YF3dQLIRgrmQEwsJZr3tk_oraWzBDdQNeL3ycGxBjaYZxx1R1ZSHHt0PUjsTIggpBZ6p1KyiT1g5ry4fME0=s0-d" alt=""></a>        
+                        <a class="voteButtonPadding {{.DownvoteClass}}" href="/likes?id={{.Cid}}&isComment=true&isLike=false"><img class="downvoteIcon"src="https://lh6.googleusercontent.com/proxy/eIl4xyFenaeOotTx0bp9nXzEU8tPQ8c5r9hrkfvG43vToNsuAS_cmLU-IQ4kcvCxwtaV9tifecw8G6dEGbzbzA79YF3dQLIRgrmQEwsJZr3tk_oraWzBDdQNeL3ycGxBjaYZxx1R1ZSHHt0PUjsTIggpBZ6p1KyiT1g5ry4fME0=s0-d" alt=""></a>        
                     </div> 
                     <div class="publicationPageCommentCore">
                         <div class="publicationPageCommentHeader">

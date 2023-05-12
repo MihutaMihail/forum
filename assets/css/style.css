@@ -2,6 +2,12 @@ body {
     background-color:rgb(10, 1, 21)
 }
 
+a {
+    background:transparent;
+    color: white;
+    text-decoration: none;
+}
+
 button {
     color: inherit;
     background-color: transparent;
@@ -110,6 +116,15 @@ button {
 .downvoteIcon {
     width: 20px;
     height: 20px;
+}
+.voteButtonPadding {
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
+    border-radius: 500px;
+}
+.clickedVote {
+    background-color: rgb(97, 97, 97);
 }
 .publicationCounter {
     position: absolute;
@@ -225,6 +240,7 @@ button {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 .publicationPageCreateComment {
     padding: 5px;
@@ -254,6 +270,29 @@ button {
 }
 
 /* COMMENTS */
+.commentBox form{
+    display: flex;
+}
+.commentTyping {
+    height: 100px;
+    width: 70%;
+    margin: 1%;
+    background-color: rgb(41, 41, 41);
+    border: 5px solid rgb(113, 113, 115);
+    border-radius: 5px;
+    color: white;
+    resize: none;
+}
+.commentSend {
+    background-color: rgb(41, 41, 41);
+    border: 3px solid rgb(113, 113, 115);
+    color: white;
+    border-radius: 5px;
+    width: 150px;
+    height: 30px;
+    margin-top: 1%;
+    margin-left: 5%;
+}
 .publicationPageComments {
     padding: 10px;
 }

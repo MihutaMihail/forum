@@ -2,6 +2,7 @@ package publications
 
 import (
 	"database/sql"
+	"fmt"
 	"html/template"
 	"log"
 )
@@ -19,8 +20,13 @@ type PublicationData struct {
 	Username           string
 	CommentNumber      int
 	Tags               template.HTML
+	TagsString         []string
 	Comments           []CommentData
 	SortedByPertinance bool
+
+	UpvoteClass      string
+	DownvoteClass    string
+	CreateCommentBox template.HTML
 }
 type CommentData struct {
 	Cid         int
@@ -31,15 +37,39 @@ type CommentData struct {
 	Pid         int
 
 	Username string
+
+	UpvoteClass   string
+	DownvoteClass string
 }
 
-func makePublicationWithId(idInt int) *PublicationData{
+const commentBoxTemplate template.HTML = template.HTML("<div class=\"commentBox\">" +
+	"<form method=`\"POST\" action=\"/sendComment?pid={{.Pid}}\">" +
+	"	<textarea class=\"commentTyping\" name=\"content\"></textarea>" +
+	"	<input class=\"commentSend\" type=\"submit\">" +
+	"</form>" +
+	"</div>")
+
+/*
+Accept any args :
+  - addCommentBox : add the comment box to write a comment
+*/
+func makePublicationWithId(idInt int, args ...string) *PublicationData {
 	// open the db
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
 	publicationData := PublicationData{}
+
+	for _, arg := range args {
+		switch arg {
+		case "addCommentBox":
+			publicationData.CreateCommentBox = commentBoxTemplate
+			break
+		default:
+			fmt.Println("Warning : invalid arg at call to makePublicationWithId")
+		}
+	}
 
 	// Get the publication from the db
 	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?;")
@@ -53,7 +83,7 @@ func makePublicationWithId(idInt int) *PublicationData{
 	} else {
 		publicationData.IsThereImage = false
 	}
-	
+
 	// get username
 	preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 	checkErr(err)
@@ -68,6 +98,7 @@ func makePublicationWithId(idInt int) *PublicationData{
 	preparedRequest, err = db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
 	checkErr(err)
 	rows, err := preparedRequest.Query(publicationData.Pid)
+	defer rows.Close()
 	checkErr(err)
 	var tagArray []string
 	for rows.Next() {
@@ -77,22 +108,40 @@ func makePublicationWithId(idInt int) *PublicationData{
 	}
 	publicationData.Tags = MakeTags(tagArray)
 
+	//liked or not by session user
+	uid := 1 // getSessionUid                 // TODO
+	preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
+	checkErr(err)
+	rows, err = preparedRequest.Query(uid, publicationData.Pid)
+	defer rows.Close()
+	for rows.Next() { // if there is a like, it will do one loop, else it will pass
+		var isLike int
+		err = rows.Scan(&isLike)
+		checkErr(err)
+		if isLike == 1 { // upvote or downvote
+			publicationData.UpvoteClass = "clickedVote"
+		} else {
+			publicationData.DownvoteClass = "clickedVote"
+		}
+	}
+
 	publicationData.Comments = makeComments(publicationData.Pid)
 
 	// fmt.Println(publicationData.Comments[0].Content)
 	return &publicationData
 }
 
-func makeComments(Pid int) []CommentData{
+func makeComments(Pid int) []CommentData {
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 	var finalArray []CommentData
 
 	// get all comments
-	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;") 
+	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;")
 	checkErr(err)
 	rows, err := preparedRequest.Query(Pid)
+	defer rows.Close()
 	// for each results, get the comment data
 	for rows.Next() {
 		var comment CommentData
@@ -103,13 +152,29 @@ func makeComments(Pid int) []CommentData{
 		preparedRequest, err = db.Prepare("SELECT username FROM Users WHERE uid = ?;")
 		checkErr(err)
 		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
-		
+
+		//liked or not by session user
+		uid := 1 // getSessionUid                 // TODO
+		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (cid = ? AND cid != 0);")
+		checkErr(err)
+		rows, err = preparedRequest.Query(uid, comment.Cid)
+		defer rows.Close()
+		for rows.Next() { // if there is a like, it will do one loop, else it will pass
+			var isLike int
+			err = rows.Scan(&isLike)
+			checkErr(err)
+			if isLike == 1 { // upvote or downvote
+				comment.UpvoteClass = "clickedVote"
+			} else {
+				comment.DownvoteClass = "clickedVote"
+			}
+		}
+
 		finalArray = append(finalArray, comment)
 	}
 
 	return finalArray
 }
-
 
 func checkErr(err error) {
 	if err != nil {
