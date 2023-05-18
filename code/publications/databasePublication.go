@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"time"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -161,20 +162,25 @@ func deleteFromArray(id int) {
 // UPDATE
 //
 
-func UpdatePost(post PublicationData) error {
+func UpdatePost(post PublicationData, selectedTags []string) error {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
 	// Prepare SQL query to UPDATE
-	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=?, like=? WHERE pid=?")
+	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=? WHERE pid=?")
 	if err != nil {
 		return err
 	}
 
+	// TEMPORARY
+	fmt.Println(post)
+	fmt.Println(selectedTags)
+	// TEMPORARY
+
 	// Execute query to UPDATE
-	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.UpvoteNumber)
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.Pid)
 	if err != nil {
 		return err
 	}

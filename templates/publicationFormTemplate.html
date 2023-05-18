@@ -7,8 +7,11 @@
 </head>
 
 <body>
-    <h1>Create Post</h1>
-    <form action="/publicationSubmitForm" method="post" enctype="multipart/form-data">
+    <h1>Post</h1>
+    <form action="/publicationSubmitForm" method="post" enctype="multipart/form-data" id="postForm">
+        <!-- Pid -->
+        <input type="hidden" id="pid" name="pid" value="{{.Pid}}">
+
         <!-- Title -->
         <label for="title">Title:</label>
         <br>
@@ -24,9 +27,10 @@
         <!-- Image -->
         <label for="image">Image:</label>
         <br>
-        <input type="file" id="image" name="image" onchange="displayImage()" value="{{.ImageLink}}">
+        <input type="file" id="image" name="image" onchange="displayImage()">
         <br><br>
-        <img id="image-preview" src="../testcrud/uploads/{{.ImageLink}}" alt="Image">
+        <img id="image-preview" src="../assets/uploads/{{.ImageLink}}" alt="Image">
+        <input type="hidden" id="imageName" name="imageName" value="{{.ImageLink}}">
         <br><br>
 
         <style>
@@ -76,7 +80,7 @@
         <br>
 
         <!-- Submit -->
-        <input type="submit" value="Create Post">
+        <input type="submit" value="Submit">
     </form>
 
     <!-- Script to add tags -->
