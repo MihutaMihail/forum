@@ -119,7 +119,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	var filename string
-	if file != nil {
+	if file != nil && r.FormValue("addImageBoolean") == "true" {
 		filename = header.Filename
 
 		// Save the file
@@ -137,7 +137,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to copy file", http.StatusInternalServerError)
 			return
 		}
-	} else if (r.FormValue("imageName") != "") {
+	} else if (r.FormValue("imageName") != "") && r.FormValue("addImageBoolean") == "true" {
 		newPost.ImageLink = r.FormValue("imageName")
 	} 
 
@@ -147,7 +147,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 
 	newPost.Title = r.FormValue("title")
 	newPost.Content = r.FormValue("content")
-	if file != nil {
+	if file != nil && r.FormValue("addImageBoolean") == "true" {
 		newPost.ImageLink = filename
 	}
 

@@ -25,12 +25,19 @@
         <br><br>
 
         <!-- Image -->
-        <label for="image">Image:</label>
-        <br>
-        <input type="file" id="image" name="image" onchange="displayImage()">
-        <br><br>
-        <img id="image-preview" src="../assets/uploads/{{.ImageLink}}" alt="Image">
+        <button id="imageButton" type="button" onclick="toggleImageInput()">Add Image</button>
+
+        <div id="fileInput" style="display: none;">
+            <label for="image">Image:</label>
+            <br>
+            <input type="file" id="image" name="image" onchange="displayImage()">
+            <br><br>
+            <img id="image-preview" src="../assets/uploads/{{.ImageLink}}" alt="Image">
+        </div>
+        <!-- HIDDEN -->
         <input type="hidden" id="imageName" name="imageName" value="{{.ImageLink}}">
+        <input type="hidden" id="addImageBoolean" name="addImageBoolean" value="false">
+        <!-- HIDDEN -->
         <br><br>
 
         <style>
@@ -40,6 +47,33 @@
                 object-fit: contain;
             }
         </style>
+
+        <script>
+        var imageInputVisible = false;
+
+        function toggleImageInput() {
+            const fileInput = document.getElementById('fileInput');
+            var addImageBoolean = document.getElementById('addImageBoolean');
+        
+            if (imageInputVisible) {
+                fileInput.style.display = 'none';
+                document.getElementById('imageButton').textContent = "Add Image";
+                addImageBoolean.value = "false";
+            } else {
+                fileInput.style.display = 'block';
+                document.getElementById('imageButton').textContent = "Remove Image";
+                addImageBoolean.value = "true";
+            }
+
+            imageInputVisible = !imageInputVisible;
+        }
+        </script>
+
+        {{if .ImageLink}}
+            <script>
+                toggleImageInput();
+            </script>
+        {{end}}
 
         <script>
         function displayImage() {
