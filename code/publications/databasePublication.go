@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"log"
 	"time"
-	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -168,21 +167,45 @@ func UpdatePost(post PublicationData, selectedTags []string) error {
 	checkErr(err)
 	defer db.Close()
 
+	//
+	// POST
+	//
+
 	// Prepare SQL query to UPDATE
 	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=? WHERE pid=?")
 	if err != nil {
 		return err
 	}
 
-	// TEMPORARY
-	fmt.Println(post)
-	fmt.Println(selectedTags)
-	// TEMPORARY
-
 	// Execute query to UPDATE
 	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.Pid)
 	if err != nil {
 		return err
+	}
+
+	//
+	// TAGS
+	//
+
+	// Prepare SQL query to DELETE
+	query, err = db.Prepare("DELETE from tags WHERE pid=?")
+	if err != nil {
+		return err
+	}
+
+	// Execute query to DELETE
+	_, err = query.Exec(post.Pid)
+	if err != nil {
+		return err
+	}
+
+	// Insert the new tags
+	for _, tag := range selectedTags {
+		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
+		checkErr(err)
+		defer query.Close()
+
+		_, err = query.Exec(tag, post.Pid)
 	}
 
 	return nil
