@@ -3,7 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Create Post</title>
+    <title>Post</title>
+
+    <link href="../assets/css/publicationForm.css" rel="stylesheet"/>
+    <script src="../assets/js/publicationForm.js"></script>
 </head>
 
 <body>
@@ -25,75 +28,22 @@
         <br><br>
 
         <!-- Image -->
-        <button id="imageButton" type="button" onclick="toggleImageInput()">Add Image</button>
+        <button id="toggleFile" type="button" onclick="toggleFileInput()">Add Image</button>
 
         <div id="fileInput" style="display: none;">
             <label for="image">Image:</label>
-            <br>
+            <br><br>
             <input type="file" id="image" name="image" onchange="displayImage()">
             <br><br>
-            <img id="image-preview" src="../assets/uploads/{{.ImageLink}}" alt="Image">
+            <img id="imagePreview" src="../assets/uploads/{{.ImageLink}}" onerror="hideBrokenImageIcon()">
         </div>
-        <!-- HIDDEN -->
         <input type="hidden" id="imageName" name="imageName" value="{{.ImageLink}}">
         <input type="hidden" id="addImageBoolean" name="addImageBoolean" value="false">
-        <!-- HIDDEN -->
         <br><br>
 
-        <style>
-            img {
-                width: 400px;
-                height: 400px;
-                object-fit: contain;
-            }
-        </style>
-
-        <script>
-        var imageInputVisible = false;
-
-        function toggleImageInput() {
-            const fileInput = document.getElementById('fileInput');
-            var addImageBoolean = document.getElementById('addImageBoolean');
-        
-            if (imageInputVisible) {
-                fileInput.style.display = 'none';
-                document.getElementById('imageButton').textContent = "Add Image";
-                addImageBoolean.value = "false";
-            } else {
-                fileInput.style.display = 'block';
-                document.getElementById('imageButton').textContent = "Remove Image";
-                addImageBoolean.value = "true";
-            }
-
-            imageInputVisible = !imageInputVisible;
-        }
-        </script>
-
         {{if .ImageLink}}
-            <script>
-                toggleImageInput();
-            </script>
+            <script>toggleFileInput();</script>
         {{end}}
-
-        <script>
-        function displayImage() {
-            const file = document.getElementById('image').files[0];
-            const imagePreview = document.getElementById('image-preview');
-
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file');
-                document.getElementById('image').value = '';
-            } else {
-                const reader = new FileReader();
-                reader.onload = function() {
-                    imagePreview.src = reader.result;
-                }
-                reader.readAsDataURL(file);
-
-                imagePreview.style.display = 'block';
-            }
-        }
-        </script>
 
         <!-- Tags -->
         <label for="tags">Tags:</label>
@@ -116,62 +66,7 @@
         <!-- Submit -->
         <input type="submit" value="Submit">
     </form>
-
-    <!-- Script to add tags -->
-    <script>    
-        function getSelectedValue() {
-            var select = document.getElementById('tags');
-            return select.value;
-        }
-
-        var existingTags = document.getElementById("existing-tags"); 
-        var existingTagsValue = existingTags.value;
-        // Remove the first and last characters if they are '[' and ']'
-        if (existingTagsValue.charAt(0) === '[' && existingTagsValue.charAt(existingTagsValue.length - 1) === ']') {
-            existingTagsValue = existingTagsValue.substring(1, existingTagsValue.length - 1);
-        }
-        var tagsArray = existingTagsValue.split(" ");
-
-        if (tagsArray != "") {
-            tagsArray.forEach(function(tag) {
-                addTag(tag);
-            });
-        }
-
-        // Add new tag
-        function addTag(selectedTag) {
-            var selectedTagsList = document.getElementById("selected-tags");
-            var selectedTagsInput = document.getElementById("selected-tags-input");
-
-            var tagExists = Array.from(
-                selectedTagsList.getElementsByTagName("li")).some(li => li.innerText === selectedTag || 
-                (li.getElementsByTagName("button")[0] && li.getElementsByTagName("button")[0].innerText === "x" && 
-                li.innerText === selectedTag + "x"));
-                
-            if (!tagExists) {
-                var newTag = document.createElement("li");
-                newTag.innerText = selectedTag;
-                selectedTagsList.appendChild(newTag);
-
-                // Add delete button
-                var deleteButton = document.createElement("button");
-                deleteButton.innerText = "x";
-                deleteButton.onclick = function() {
-                    newTag.remove();
-                    var selectedTags = Array.from(selectedTagsList.getElementsByTagName("li")).map(li => li.innerText);
-                    selectedTagsInput.value = JSON.stringify(selectedTags);
-                };
-                newTag.appendChild(deleteButton);
-
-                var selectedTags = Array.from(selectedTagsList.getElementsByTagName("li")).map(li => li.innerText);
-                selectedTagsInput.value = JSON.stringify(selectedTags);
-            }
-        }
-    </script>
 </body>
 
 </html>
 
-<!-- Array.from(selectedTagsList.getElementsByTagName("li")) --- from all these elements (li) -->
-<!-- .map(li => li.innerText)                                --- get me the value of li elements (innerText) -->
-<!-- .includes(selectedTag)                                  --- check if this value is present in the array -->

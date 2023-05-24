@@ -71,23 +71,17 @@ func GetPostByID(id int) PublicationData {
 //
 
 func InsertPost(post PublicationData, selectedTags []string) error {
-	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
-	// Prepare SQL query to INSERT into POSTS
 	query, err := db.Prepare("INSERT INTO publications(title, content, image, like, createdDate, uid) VALUES(?, ?, ?, ?, ?, ?)")
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 	defer query.Close()
 
 	// Execute query to INSERT
 	_, err = query.Exec(post.Title, post.Content, post.ImageLink, 0, time.Now(), post.Uid)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
 	// Get last POST which is current POST
 	posts := GetAllPosts()
@@ -96,11 +90,11 @@ func InsertPost(post PublicationData, selectedTags []string) error {
 	// Insert tags
 	for _, tag := range selectedTags {
 		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
-		checkErr(err)
+		if err != nil { return err }
 		defer query.Close()
 
 		_, err = query.Exec(tag, lastPost.Pid)
-		checkErr(err)
+		if err != nil { return err }
 	}
 
 	return nil
@@ -111,36 +105,23 @@ func InsertPost(post PublicationData, selectedTags []string) error {
 //
 
 func DeletePost(post PublicationData) error {
-	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
-	// Prepare SQL query to DELETE from POSTS
 	query, err := db.Prepare("DELETE FROM publications WHERE pid=?")
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 	defer query.Close()
-
-	// Execute query to DELETE
+	
 	_, err = query.Exec(post.Pid)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
-	// Prepare SQL query to DELETE from TAGS
 	query, err = db.Prepare("DELETE FROM tags WHERE pid=?")
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 	defer query.Close()
 
-	// Execute query to DELETE
 	_, err = query.Exec(post.Pid)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
 	deleteFromArray(post.Pid)
 
@@ -162,50 +143,31 @@ func deleteFromArray(id int) {
 //
 
 func UpdatePost(post PublicationData, selectedTags []string) error {
-	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
-	//
 	// POST
-	//
-
-	// Prepare SQL query to UPDATE
 	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=? WHERE pid=?")
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
-	// Execute query to UPDATE
 	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.Pid)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
-	//
 	// TAGS
-	//
-
-	// Prepare SQL query to DELETE
 	query, err = db.Prepare("DELETE from tags WHERE pid=?")
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
-	// Execute query to DELETE
 	_, err = query.Exec(post.Pid)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
-	// Insert the new tags
 	for _, tag := range selectedTags {
 		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
-		checkErr(err)
+		if err != nil { return err }
 		defer query.Close()
 
 		_, err = query.Exec(tag, post.Pid)
+		if err != nil { return err }
 	}
 
 	return nil
