@@ -252,3 +252,29 @@ func isUserAdmin(w http.ResponseWriter, r *http.Request) (bool) {
 
 	return isAdmin == 1
 }
+
+func DeleteComment(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("sqlite3", "./database.db")
+	checkErr(err)
+	defer db.Close()
+	
+	// get the cid from query url
+	cid := r.URL.Query().Get("id")
+
+	// get the pid of the comm
+	preparedRequest, err := db.Prepare("SELECT pid FROM Comments WHERE cid = ?;")
+	checkErr(err)
+	pid := 0;
+	row := preparedRequest.QueryRow(cid)
+	row.Scan(&pid)
+
+	// delete the comm
+	_, err = db.Exec("DELETE FROM Comments WHERE cid = ?;", cid)
+	checkErr(err)
+
+	// recreate the publication (it refresh)
+	publicationData := makePublicationWithId(pid, w, r)
+	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
+	err = tpl.Execute(w, publicationData)
+	checkErr(err)
+}

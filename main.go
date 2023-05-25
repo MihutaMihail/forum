@@ -27,6 +27,7 @@ func main() {
 	http.HandleFunc("/checkpublicationForm", publications.CheckHandleFormPost)
 	http.HandleFunc("/publicationSubmitForm", publications.HandleSubmitForm)
 	http.HandleFunc("/publicationDelete", publications.HandleDeletePost)
+	http.HandleFunc("/commentDelete", publications.DeleteComment)
 
 	http.HandleFunc("/login", authentification.Login)
 	http.HandleFunc("/loginGet", authentification.LoginGet)

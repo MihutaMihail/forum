@@ -45,6 +45,8 @@ type CommentData struct {
 
 	UpvoteClass   string
 	DownvoteClass string
+
+	IsOwner bool
 }
 
 const commentBoxTemplateFirst string = "<div class=\"commentBox\"><form method=\"POST\" action=\"/sendComment?pid="
@@ -180,6 +182,8 @@ func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData
 				}
 			}
 		}
+		
+		comment.IsOwner = (uid == comment.Uid) || isUserAdmin(w, r)
 
 		finalArray = append(finalArray, comment)
 
