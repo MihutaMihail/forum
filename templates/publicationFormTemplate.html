@@ -3,12 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Create Post</title>
+    <title>Post</title>
+
+    <link href="../assets/css/publicationForm.css" rel="stylesheet"/>
+    <script src="../assets/js/publicationForm.js"></script>
 </head>
 
 <body>
-    <h1>Create Post</h1>
-    <form action="/publicationSubmitForm" method="post" enctype="multipart/form-data">
+    <h1>Post</h1>
+    <form action="/publicationSubmitForm" method="post" enctype="multipart/form-data" id="postForm">
+        <!-- Pid -->
+        <input type="hidden" id="pid" name="pid" value="{{.Pid}}">
+
         <!-- Title -->
         <label for="title">Title:</label>
         <br>
@@ -22,40 +28,22 @@
         <br><br>
 
         <!-- Image -->
-        <label for="image">Image:</label>
-        <br>
-        <input type="file" id="image" name="image" onchange="displayImage()" value="{{.ImageLink}}">
+        <button id="toggleFile" type="button" onclick="toggleFileInput()">Add Image</button>
+
+        <div id="fileInput" style="display: none;">
+            <label for="image">Image:</label>
+            <br><br>
+            <input type="file" id="image" name="image" onchange="displayImage()">
+            <br><br>
+            <img id="imagePreview" src="../assets/uploads/{{.ImageLink}}" onerror="hideBrokenImageIcon()">
+        </div>
+        <input type="hidden" id="imageName" name="imageName" value="{{.ImageLink}}">
+        <input type="hidden" id="addImageBoolean" name="addImageBoolean" value="false">
         <br><br>
-        <img id="image-preview" src="../testcrud/uploads/{{.ImageLink}}" alt="Image">
-        <br><br>
 
-        <style>
-            img {
-                width: 400px;
-                height: 400px;
-                object-fit: contain;
-            }
-        </style>
-
-        <script>
-        function displayImage() {
-            const file = document.getElementById('image').files[0];
-            const imagePreview = document.getElementById('image-preview');
-
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file');
-                document.getElementById('image').value = '';
-            } else {
-                const reader = new FileReader();
-                reader.onload = function() {
-                    imagePreview.src = reader.result;
-                }
-                reader.readAsDataURL(file);
-
-                imagePreview.style.display = 'block';
-            }
-        }
-        </script>
+        {{if .ImageLink}}
+            <script>toggleFileInput();</script>
+        {{end}}
 
         <!-- Tags -->
         <label for="tags">Tags:</label>
@@ -64,7 +52,7 @@
             <option value="Nature">Nature</option>
             <option value="Space">Space</option>
         </select>
-        <button type="button" onclick="addTag()">Add Tag</button>
+        <button type="button" onclick="addTag(getSelectedValue())">Add Tag</button>
         <br><br>
 
         <!-- List of tags -->
@@ -76,50 +64,9 @@
         <br>
 
         <!-- Submit -->
-        <input type="submit" value="Create Post">
+        <input type="submit" value="Submit">
     </form>
-
-    <!-- Script to add tags -->
-    <script>    
-        // Add new tag
-        function addTag() {
-            var select = document.getElementById("tags");
-            var selectedOption = select.options[select.selectedIndex];
-            var selectedTag = selectedOption.value;
-            var selectedTagsList = document.getElementById("selected-tags");
-            var selectedTagsInput = document.getElementById("selected-tags-input");
-            var existingTags = document.getElementById("existing-tags"); 
-            var existingTagsValue = existingTags.value;
-
-            var tagExists = Array.from(
-                selectedTagsList.getElementsByTagName("li")).some(li => li.innerText === selectedTag || 
-                (li.getElementsByTagName("button")[0] && li.getElementsByTagName("button")[0].innerText === "x" && 
-                li.innerText === selectedTag + "x"));
-                
-            if (!tagExists) {
-                var newTag = document.createElement("li");
-                newTag.innerText = selectedTag;
-                selectedTagsList.appendChild(newTag);
-
-                // Add delete button
-                var deleteButton = document.createElement("button");
-                deleteButton.innerText = "x";
-                deleteButton.onclick = function() {
-                    newTag.remove();
-                    var selectedTags = Array.from(selectedTagsList.getElementsByTagName("li")).map(li => li.innerText);
-                    selectedTagsInput.value = JSON.stringify(selectedTags);
-                };
-                newTag.appendChild(deleteButton);
-
-                var selectedTags = Array.from(selectedTagsList.getElementsByTagName("li")).map(li => li.innerText);
-                selectedTagsInput.value = JSON.stringify(selectedTags);
-            }
-        }
-    </script>
 </body>
 
 </html>
 
-<!-- Array.from(selectedTagsList.getElementsByTagName("li")) --- from all these elements (li) -->
-<!-- .map(li => li.innerText)                                --- get me the value of li elements (innerText) -->
-<!-- .includes(selectedTag)                                  --- check if this value is present in the array -->

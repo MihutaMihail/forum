@@ -36,6 +36,14 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 // CREATE
 //
 
+func CheckHandleFormPost(w http.ResponseWriter, r *http.Request) {
+	if authentification.CheckSessionUid(w,r) == nil {
+		http.Redirect(w, r, "/publicationForm", http.StatusFound)
+	} else {
+		http.Redirect(w, r, "/", http.StatusNotFound)
+	}
+}
+
 func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	formPost := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
 	// Get the ID from the query parameters
@@ -86,7 +94,13 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
-	var post PublicationData
+	var newPost PublicationData
+
+	r.ParseForm()
+
+	//
+	// Image
+	// 
 
 	file, header, err := r.FormFile("image")
 	if err != nil {
@@ -105,7 +119,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	var filename string
-	if file != nil {
+	if file != nil && r.FormValue("addImageBoolean") == "true" {
 		filename = header.Filename
 
 		// Save the file
@@ -123,15 +137,20 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to copy file", http.StatusInternalServerError)
 			return
 		}
+	} else if (r.FormValue("imageName") != "") && r.FormValue("addImageBoolean") == "true" {
+		newPost.ImageLink = r.FormValue("imageName")
+	} 
+
+	//
+	// Title, Content, Tags
+	//
+
+	newPost.Title = r.FormValue("title")
+	newPost.Content = r.FormValue("content")
+	if file != nil && r.FormValue("addImageBoolean") == "true" {
+		newPost.ImageLink = filename
 	}
 
-	r.ParseForm()
-
-	post.Title = r.FormValue("title")
-	post.Content = r.FormValue("content")
-	if file != nil {
-		post.ImageLink = filename
-	}
 	selectedTagsJSON := r.FormValue("selected-tags")
 	var selectedTags []string
 
@@ -144,7 +163,30 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	InsertPost(post, selectedTags)
+	if r.FormValue("pid") == "-1" {
+		err := InsertPost(newPost, selectedTags)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// UPDATE POST
+		postId, err := strconv.Atoi(r.FormValue("pid"))
+		if err != nil {
+			http.Error(w, "Invalid post ID", http.StatusBadRequest)
+			return
+		}
+		post := GetPostByID(postId)			
+		post.Title = newPost.Title
+		post.Content = newPost.Content
+		post.ImageLink = newPost.ImageLink
+
+		err = UpdatePost(post, selectedTags)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }

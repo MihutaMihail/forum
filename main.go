@@ -13,6 +13,7 @@ import (
 func main() {
 	http.Handle("/assets/images/", http.StripPrefix("/assets/images/", http.FileServer(http.Dir("assets/images"))))
 	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
+	http.Handle("/assets/js/", http.StripPrefix("/assets/js/", http.FileServer(http.Dir("assets/js"))))
 	// TEMPORARY
 	http.Handle("/assets/uploads/", http.StripPrefix("/assets/uploads/", http.FileServer(http.Dir("assets/uploads"))))
 	// TEMPORARY
@@ -23,6 +24,7 @@ func main() {
 	http.HandleFunc("/addCommentBox", publications.MakeCommentBox)
 	http.HandleFunc("/sendComment", publications.AddAComment)
 	http.HandleFunc("/publicationForm", publications.HandleFormPost)
+	http.HandleFunc("/checkpublicationForm", publications.CheckHandleFormPost)
 	http.HandleFunc("/publicationSubmitForm", publications.HandleSubmitForm)
 	http.HandleFunc("/publicationDelete", publications.HandleDeletePost)
 
