@@ -114,18 +114,18 @@ func DeletePost(post PublicationData) error {
 	query, err := db.Prepare("DELETE FROM publications WHERE pid=?")
 	if err != nil { return err }
 	defer query.Close()
-	
 	_, err = query.Exec(post.Pid)
 	if err != nil { return err }
 
 	query, err = db.Prepare("DELETE FROM tags WHERE pid=?")
 	if err != nil { return err }
 	defer query.Close()
+	_, err = query.Exec(post.Pid)
+	if err != nil { return err }
 
 	query, err = db.Prepare("DELETE FROM Comments WHERE pid=?")
 	if err != nil { return err }
 	defer query.Close()
-
 	_, err = query.Exec(post.Pid)
 	if err != nil { return err }
 
