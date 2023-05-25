@@ -164,7 +164,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.FormValue("pid") == "-1" {
-		err := InsertPost(newPost, selectedTags)
+		err := InsertPost(newPost, selectedTags, w, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

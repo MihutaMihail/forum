@@ -2,7 +2,9 @@ package publications
 
 import (
 	"database/sql"
+	"forum/code/authentification"
 	"log"
+	"net/http"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -70,7 +72,7 @@ func GetPostByID(id int) PublicationData {
 // INSERT
 //
 
-func InsertPost(post PublicationData, selectedTags []string) error {
+func InsertPost(post PublicationData, selectedTags []string, w http.ResponseWriter, r *http.Request) error {
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
@@ -80,7 +82,7 @@ func InsertPost(post PublicationData, selectedTags []string) error {
 	defer query.Close()
 
 	// Execute query to INSERT
-	_, err = query.Exec(post.Title, post.Content, post.ImageLink, 0, time.Now(), post.Uid)
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, 0, time.Now().Format("02-01-2006"), authentification.GetSessionUid(w, r))
 	if err != nil { return err }
 
 	// Get last POST which is current POST
@@ -117,6 +119,10 @@ func DeletePost(post PublicationData) error {
 	if err != nil { return err }
 
 	query, err = db.Prepare("DELETE FROM tags WHERE pid=?")
+	if err != nil { return err }
+	defer query.Close()
+
+	query, err = db.Prepare("DELETE FROM Comments WHERE pid=?")
 	if err != nil { return err }
 	defer query.Close()
 
