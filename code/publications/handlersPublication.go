@@ -3,6 +3,7 @@ package publications
 import (
 	"database/sql"
 	"encoding/json"
+	"forum/code/authentification"
 	"html/template"
 	"io"
 	"log"
@@ -158,7 +159,17 @@ func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid post ID", http.StatusBadRequest)
 		return
 	}
-	DeletePost(GetPostByID(id))
+	post := GetPostByID(id)
+
+	sessionUser := authentification.GetSessionUid(w, r)
+	isAdmin := isUserAdmin(w, r)
+	
+	uidInt, err := strconv.Atoi(post.Uid)
+	checkErr(err)
+	// check if the user is the owner, or an admin
+	if (uidInt == sessionUser || isAdmin) {
+		DeletePost(post)
+	}
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -175,4 +186,27 @@ func getQueryID(w http.ResponseWriter, r *http.Request) (int, error) {
 		return -1, err
 	}
 	return id, err
+}
+
+
+// return true if sessionUser is admin, else false
+func isUserAdmin(w http.ResponseWriter, r *http.Request) (bool) {
+	// open Db
+	sessionUser := authentification.GetSessionUid(w, r)
+	db, err := sql.Open("sqlite3", "./database.db")
+	checkErr(err)
+	defer db.Close()
+
+	// if not connected
+	if (sessionUser == 0) {
+		return false
+	}
+
+	preparedRequest, err := db.Prepare("SELECT admin FROM Users WHERE uid = ?;")
+	checkErr(err)
+	isAdmin := 0;
+	row := preparedRequest.QueryRow(sessionUser)
+	row.Scan(&isAdmin)
+
+	return isAdmin == 1
 }

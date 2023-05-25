@@ -30,6 +30,8 @@ type PublicationData struct {
 	UpvoteClass      string
 	DownvoteClass    string
 	CreateCommentBox template.HTML
+
+	IsOwner bool
 }
 type CommentData struct {
 	Cid         int
@@ -127,6 +129,9 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 			}
 		}
 	}
+	pubUidInt, err := strconv.Atoi(publicationData.Uid)
+	checkErr(err)
+	publicationData.IsOwner = (uid == pubUidInt) || isUserAdmin(w, r)
 
 	publicationData.Comments = makeComments(publicationData.Pid, w, r)
 

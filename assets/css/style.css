@@ -185,10 +185,29 @@ button {
     font-size: 16px;
     color: rgb(161, 161, 167);
 }
+.publicationPageTopRight {
+    display: flex;
+    align-items: center;
+}
 .publicationPageTags {
     display: flex;
     justify-content: space-around;
     padding-left: 20px;
+}
+.publicationPageDeleteBtn {
+    margin-left: 20px;
+    margin-right: 20px;
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-left: 3px;
+    margin-top: 5px;
+    border-radius: 3px;
+    background-color: rgb(185, 21, 21);
+    box-shadow: 4px 2px 4px rgba(0, 0, 0, 0.281);
+    cursor: pointer;
+}
+.publicationPageDeleteBtn:hover {
+    background-color: rgb(125, 95, 95);
 }
 .publicationPageUsername {
     margin-right: 20px;
