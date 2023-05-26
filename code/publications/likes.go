@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"forum/code/authentification"
-	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -72,11 +71,7 @@ func HandleLikes(w http.ResponseWriter, r *http.Request) {
 	if likeData.Pid == 0 {
 		likeData.Pid = getPidFromCid(likeData, db)
 	}
-	// recreate the publication (it refresh)
-	publicationData := makePublicationWithId(likeData.Pid, w, r)
-	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
-	err = tpl.Execute(w, publicationData)
-	checkErr(err)
+	refreshPublicationPage(w, r, likeData.Pid)
 }
 
 func alreadyALike(likeData LikeData, db *sql.DB) {

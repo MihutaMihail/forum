@@ -272,9 +272,5 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	_, err = db.Exec("DELETE FROM Comments WHERE cid = ?;", cid)
 	checkErr(err)
 
-	// recreate the publication (it refresh)
-	publicationData := makePublicationWithId(pid, w, r)
-	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
-	err = tpl.Execute(w, publicationData)
-	checkErr(err)
+	refreshPublicationPage(w, r, pid)
 }

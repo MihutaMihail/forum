@@ -192,8 +192,16 @@ func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData
 	return finalArray
 }
 
+func refreshPublicationPage(w http.ResponseWriter, r *http.Request, pid int) {
+	publicationData := makePublicationWithId(pid, w, r)
+	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
+	err := tpl.Execute(w, publicationData)
+	checkErr(err)
+}
+
 func checkErr(err error) {
 	if err != nil {
 		log.Panic(err)
 	}
 }
+

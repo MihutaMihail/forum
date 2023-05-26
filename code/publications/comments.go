@@ -32,10 +32,12 @@ func AddAComment(w http.ResponseWriter, r *http.Request) {
 
 	cookie := authentification.GetSessionUid(w, r)
 
+	commentData.Pid, err = strconv.Atoi(r.URL.Query().Get("pid"))
+
 	if cookie != 0 {
 		commentData.Uid = cookie
 		
-		commentData.Pid, err = strconv.Atoi(r.URL.Query().Get("pid"))
+		checkErr(err)
 		commentData.Like = 0
 
 		timeNow := time.Now()
@@ -60,10 +62,5 @@ func AddAComment(w http.ResponseWriter, r *http.Request) {
 
 
 	// refresh
-	publicationData := makePublicationWithId(commentData.Pid, w, r, "addCommentBox")
-
-	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
-
-	err = tpl.Execute(w, publicationData)
-	checkErr(err)
+	refreshPublicationPage(w, r, commentData.Pid)
 }
