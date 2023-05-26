@@ -16,8 +16,8 @@ func main() {
 	// TEMPORARY
 	http.Handle("/assets/uploads/", http.StripPrefix("/assets/uploads/", http.FileServer(http.Dir("assets/uploads"))))
 	// TEMPORARY
-
 	http.HandleFunc("/", publications.HandleAllPosts)
+
 	http.HandleFunc("/publication", publications.HandlePublication)
 	http.HandleFunc("/likes", publications.HandleLikes)
 	http.HandleFunc("/addCommentBox", publications.MakeCommentBox)
@@ -32,8 +32,10 @@ func main() {
 	http.HandleFunc("/register", authentification.Register)
 	http.HandleFunc("/print", authentification.Print)
 	http.HandleFunc("/registerGet", authentification.RegisterGet)
+	http.HandleFunc("/delete", authentification.Reset)
 
-	fmt.Println("Serving on port 8080")
+	fmt.Println("Serving on port http://localhost:8080")
+	// publications.Useronline()
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -60,3 +62,6 @@ func main() {
 		fmt.Println(test)
 	}
 }*/
+func test() {
+	fmt.Println("gjkdfhrhmgjherjgherljghe")
+}

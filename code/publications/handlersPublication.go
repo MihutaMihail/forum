@@ -37,10 +37,12 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 //
 
 func CheckHandleFormPost(w http.ResponseWriter, r *http.Request) {
-	if authentification.CheckSessionUid(w,r) == nil {
+	if authentification.CheckSessionUid(w, r) == nil {
 		http.Redirect(w, r, "/publicationForm", http.StatusFound)
+
 	} else {
 		http.Redirect(w, r, "/", http.StatusNotFound)
+
 	}
 }
 
