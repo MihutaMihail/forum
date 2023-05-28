@@ -194,8 +194,21 @@ button {
     justify-content: space-around;
     padding-left: 20px;
 }
-.publicationPageDeleteBtn {
+
+.publicationPageEditBtn {
     margin-left: 20px;
+    margin-right: 20px;
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-left: 3px;
+    margin-top: 5px;
+    border-radius: 3px;
+    background-color: rgb(21, 185, 76);
+    box-shadow: 4px 2px 4px rgba(0, 0, 0, 0.281);
+    cursor: pointer;
+}
+.publicationPageDeleteBtn {
+    margin-left: 5px;
     margin-right: 20px;
     padding-top: 3px;
     padding-right: 3px;
