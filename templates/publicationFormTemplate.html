@@ -13,10 +13,13 @@
         <div id="logo">
           <h1>LOGO</h1>
         </div>
-        
-        <div id="profil">
+         <div id="profil">
+          {{if not .CheckUser}}
           <a href="/login"> Connexion</a>
           <a href="/register"> Inscription</a>
+          {{else}}
+          <a href="/profil"> Voir profil</a>
+          {{end}}
         </div>
       </nav> 
     </header>

@@ -137,11 +137,11 @@ main {
     margin-bottom: 2%;
 }
 
-#searchBar input {
+#searchBar select {
     width: 50%;
 }
 
-#searchBar button {
+#searchBar span {
     color: white;
     background-color: #6D7993;
     border: none;
@@ -265,10 +265,7 @@ main {
     text-decoration: underline;
 }
 
-.morePublications {
-    color: #6D7993;
-    padding-inline: 40%;
-}
+
 
 #column-3 {
     margin-left: 78%;

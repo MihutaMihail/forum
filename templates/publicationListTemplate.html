@@ -16,8 +16,12 @@
           <h1>LOGO</h1>
         </div>
         <div id="profil">
+          {{if not .CheckUser}}
           <a href="/login"> Connexion</a>
           <a href="/register"> Inscription</a>
+          {{else}}
+          <a href="/profil"> Voir profil</a>
+          {{end}}
         </div>
       </nav> 
     </header>
@@ -67,8 +71,12 @@
       <div id="column-2">
         <div id="searchBar">
           <form action="">
-            <input type="text" />
-            <button type="submit">FILTRE</button>
+            <Span>FILTRE :</Span>
+            <select >
+                <option value="ALL">Tous</option>
+                <option value="Nature">Nature</option>
+                <option value="Space">Space</option>
+            </select>
           </form>
         </div>
 

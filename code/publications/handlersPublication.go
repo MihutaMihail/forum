@@ -15,6 +15,7 @@ import (
 
 type indexPageData struct {
 	Publications []template.HTML
+	CheckUser    bool
 }
 
 //
@@ -26,6 +27,12 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	for _, post := range GetAllPosts() {
 		publication := MakePublicationHomePageTemplate(post.Pid, w, r)
 		indexData.Publications = append(indexData.Publications, publication)
+	}
+
+	if authentification.CheckSessionUid(w, r) == nil {
+		indexData.CheckUser = true
+	} else {
+		indexData.CheckUser = false
 	}
 
 	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
@@ -55,7 +62,11 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	if idStr == "" {
 		var postEmpty PublicationData
 		postEmpty.Pid = -1
-
+		if authentification.CheckSessionUid(w, r) == nil {
+			postEmpty.CheckUser = true
+		} else {
+			postEmpty.CheckUser = false
+		}
 		formPost.Execute(w, postEmpty)
 		return
 	}
@@ -93,6 +104,7 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 
 	// Change to UPDATE POST
 	formPost.Execute(w, post)
+
 }
 
 func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
