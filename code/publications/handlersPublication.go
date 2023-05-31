@@ -180,6 +180,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 		post.Title = newPost.Title
 		post.Content = newPost.Content
 		post.ImageLink = newPost.ImageLink
+		post.Edited = 1
 
 		err = UpdatePost(post, selectedTags)
 		if err != nil {

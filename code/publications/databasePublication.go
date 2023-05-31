@@ -35,7 +35,7 @@ func GetAllPosts() []PublicationData {
 		var post PublicationData
 		err := rows.Scan(
 			&post.Pid, &post.Title, &post.Content, &post.ImageLink,
-			&post.UpvoteNumber, &post.CreatedDate, &post.Uid)
+			&post.UpvoteNumber, &post.CreatedDate, &post.Edited, &post.Uid)
 		checkErr(err)
 
 		// Check if post exists
@@ -78,12 +78,16 @@ func InsertPost(post PublicationData, selectedTags []string, w http.ResponseWrit
 	defer db.Close()
 
 	query, err := db.Prepare("INSERT INTO publications(title, content, image, like, createdDate, uid) VALUES(?, ?, ?, ?, ?, ?)")
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	defer query.Close()
 
 	// Execute query to INSERT
 	_, err = query.Exec(post.Title, post.Content, post.ImageLink, 0, time.Now().Format("02-01-2006"), authentification.GetSessionUid(w, r))
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	// Get last POST which is current POST
 	posts := GetAllPosts()
@@ -92,11 +96,15 @@ func InsertPost(post PublicationData, selectedTags []string, w http.ResponseWrit
 	// Insert tags
 	for _, tag := range selectedTags {
 		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 		defer query.Close()
 
 		_, err = query.Exec(tag, lastPost.Pid)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -112,16 +120,24 @@ func DeletePost(post PublicationData) error {
 	defer db.Close()
 
 	query, err := db.Prepare("DELETE FROM publications WHERE pid=?")
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	defer query.Close()
 	_, err = query.Exec(post.Pid)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	query, err = db.Prepare("DELETE FROM tags WHERE pid=?")
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	defer query.Close()
 	_, err = query.Exec(post.Pid)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	query, err = db.Prepare("DELETE FROM Comments WHERE pid=?")
 	if err != nil {
@@ -129,7 +145,9 @@ func DeletePost(post PublicationData) error {
 	}
 	defer query.Close()
 	_, err = query.Exec(post.Pid)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	deleteFromArray(post.Pid)
 
@@ -156,26 +174,38 @@ func UpdatePost(post PublicationData, selectedTags []string) error {
 	defer db.Close()
 
 	// POST
-	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=? WHERE pid=?")
-	if err != nil { return err }
+	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=?, edited=? WHERE pid=?")
+	if err != nil {
+		return err
+	}
 
-	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.Pid)
-	if err != nil { return err }
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.Edited, post.Pid)
+	if err != nil {
+		return err
+	}
 
 	// TAGS
 	query, err = db.Prepare("DELETE from tags WHERE pid=?")
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	_, err = query.Exec(post.Pid)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	for _, tag := range selectedTags {
 		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
-		if err != nil { return err }
+		if err != nil { 
+			return err
+		}
 		defer query.Close()
 
 		_, err = query.Exec(tag, post.Pid)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

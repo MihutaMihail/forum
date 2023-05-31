@@ -8,10 +8,6 @@
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <!-- TEMPORARY -->
-    <button><a href="/publicationForm?id={{.Pid}}">Update</a></button> <br>
-    <!-- TEMPORARY -->
-
     <div class="publicationPage">
         <div class="publicationPageHeader">
             <div class="publicationPageFirstLine">
@@ -32,6 +28,11 @@
             <div class="publicationPageTitle">
                 {{.Title}}
             </div>
+
+            {{ if .Edited }}
+                <p>(edited)</p>
+            {{ end }}
+
         </div>
         <div class="publicationPageContent">
             {{.Content}}
