@@ -8,6 +8,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -169,11 +170,12 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 	return &publicationData
 }
 
+
+var finalCommentArray []CommentData
 func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData {
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
-	var finalArray []CommentData
 
 	// get all comments
 	preparedRequest, err := db.Prepare("SELECT * FROM Comments WHERE pid = ?;")
@@ -225,13 +227,19 @@ func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData
 		
 		comment.Rating = comment.Like - int(math.Round(math.Pow(days, 2)))
 
-		finalArray = append(finalArray, comment)
+		finalCommentArray = append(finalCommentArray, comment)
 
 	}
 
+	
+	
+	sort.Slice(finalCommentArray, sortCommentByRatings)
 
+	return finalCommentArray
+}
 
-	return finalArray
+func sortCommentByRatings(i, j int) bool{
+	return finalCommentArray[i].Rating > finalCommentArray[j].Rating
 }
 
 func refreshPublicationPage(w http.ResponseWriter, r *http.Request, pid int) {
