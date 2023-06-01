@@ -1,0 +1,66 @@
+* {
+    text-decoration: none;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    color: black;
+}
+
+body {
+    background-color: #6D7993;
+}
+
+#centerBox {
+    margin-block: 12%;
+    background-color: #F5F5F5;
+    margin-inline: 40%;
+    max-width: 20%;
+    max-height: 20%;
+    border-radius: 20px;
+    padding-block: 2%;
+    box-shadow: 2px 2px 2px 2px #0000001f;
+
+}
+
+#centerBox h3 {
+    text-align: center;
+    color: #6D7993;
+    text-decoration: underline;
+}
+
+#centerBoxForm {
+    padding-inline: 15%;
+}
+
+#centerBoxForm input {
+    margin-block: 5%;
+    border: #6D7993 solid 1px;
+    border-radius: 20px;
+    background-color: #F5F5F5;
+    padding-block: 2%;
+    padding-left: 5%;
+    max-width: 90%;
+}
+
+
+#centerBoxForm button {
+    width: 50%;
+    margin-top: 2%;
+    margin-inline: 25%;
+    border: #6D7993 1px solid;
+    border-radius: 20px;
+    background-color: #6D7993;
+    color: #F5F5F5;
+}
+
+#centerBoxFormPrint {
+    text-align: center;
+    padding-top: 2%;
+
+}
+
+#centerBoxFormPrint button {
+    color: #6D7993;
+    background-color: white;
+    border: #6D7993 2px solid;
+    border-radius: 20px;
+    width: 35%;
+}
