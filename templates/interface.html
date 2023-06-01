@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="../assets/css/style1.css">
+</head>
+<body>
+    <header>
+      <nav>
+        <div id="logo">
+          <h1>LOGO</h1>
+        </div>
+        <div id="profil">
+          {{if not .CheckUser}}
+          <a href="/login"> Connexion</a>
+          <a href="/register"> Inscription</a>
+          {{else}}
+          <a href="/profil"> Voir profil</a>
+          {{end}}
+        </div>
+      </nav> 
+    </header>
+    <main id="bodyOfAcceuil">
+      <div id="column1">
+        <div id="menu">
+          <div class="subMenu">
+            <img
+              src="../assets/uploads/acceuil.png"
+              alt=""
+              class="menuImage"
+            />
+            <a href="/"> Acceuil</a>
+          </div>
+          <!-- TEMPORARY -->
+          <div class="subMenu">
+            <img
+              src="../assets/uploads/add.png"             
+               alt=""
+              class="menuImage"
+            />
+            <a href="/checkpublicationForm"> Ajouter</a>
+          </div>
+          <!-- TEMPORARY -->
+          <div class="subMenu">
+            <img
+              src="../assets/uploads/news.png"
+              alt=""
+              class="menuImage"
+            />
+            <a href=""> Mes publication</a>
+          </div>
+          <div class="subMenu">
+            <img
+              src="../assets/uploads/like.png"
+              alt=""
+              class="menuImage"
+            />
+            <a href=""> Publication aimée</a>
+          </div>
+        </div>
+        <div id="log_out">
+          <a href="">DECONNEXION</a>
+        </div>
+      </div>
+      <div id="column-2">
+        <div id="searchBar">
+          <form action="">
+            <Span>FILTRE :</Span>
+            <select >
+                <option value="ALL">Tous</option>
+                <option value="Nature">Nature</option>
+                <option value="Space">Space</option>
+            </select>
+          </form>
+        </div>
+        {{.Main}}
+      </div>
+    </main>
+</body>
+</html>

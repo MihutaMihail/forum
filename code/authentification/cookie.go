@@ -37,11 +37,7 @@ func GetSessionUid(w http.ResponseWriter, r *http.Request) int {
 
 }
 
-func CheckSessionUid(w http.ResponseWriter, r *http.Request) error {
+func CheckSessionUid(w http.ResponseWriter, r *http.Request) bool {
 	_, err := r.Cookie("session")
-	if err != nil {
-		return err
-	} else {
-		return nil
-	}
+	return err == nil
 }

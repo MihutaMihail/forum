@@ -16,6 +16,7 @@ import (
 
 type indexPageData struct { // maybe temporary ; interface template with main body
 	Main template.HTML
+	CheckUser bool
 }
 
 type mainFeedData struct {
@@ -43,8 +44,10 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	tplString := tpl.String()
 	indexData.Main = template.HTML(tplString)
 
+	indexData.CheckUser = authentification.CheckSessionUid(w, r)
+
 	// execute with interface
-	allPosts := template.Must(template.ParseFiles("./templates/test_interface.html"))
+	allPosts := template.Must(template.ParseFiles("./templates/interface.html"))
 	allPosts.Execute(w, indexData)
 }
 
@@ -53,7 +56,7 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 //
 
 func CheckHandleFormPost(w http.ResponseWriter, r *http.Request) {
-	if authentification.CheckSessionUid(w,r) == nil {
+	if authentification.CheckSessionUid(w,r) {
 		http.Redirect(w, r, "/publicationForm", http.StatusFound)
 	} else {
 		http.Redirect(w, r, "/", http.StatusNotFound)
