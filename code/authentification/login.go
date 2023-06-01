@@ -7,7 +7,7 @@ func LoginGet(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "http://localhost:8080/login", http.StatusSeeOther)
 	}
 
-	if CheckSessionUid(w,r) {
+	if CheckSessionUid(w,r) != nil {
 		CheckUsers(w, r)
 	} else {
 		Data.ErreurCookie = "Vous avez déjà votre session ouverte"
