@@ -18,14 +18,6 @@ func HandlePublication(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	publicationData := makePublicationWithId(id, w, r)
 
-	// create the template and returns it. For when the handler will change to add the website interface
-	//
-	// tpl := new(bytes.Buffer)
-	// tplRaw := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
-	// err = tplRaw.Execute(tpl, publicationData)
-	// checkErr(err)
-	// tplString := tpl.String()
-	// return template.HTML(tplString)
 
 	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
 

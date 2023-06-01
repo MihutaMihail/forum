@@ -160,9 +160,10 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 	checkErr(err)
 	timeEnd, err := time.Parse("02-01-2006", timeNow)
 	checkErr(err)
-	days := int(math.Ceil(timeEnd.Sub(timeStart).Hours()/24))
+	days := math.Ceil(timeEnd.Sub(timeStart).Hours()/24)
 
-	publicationData.Rating = publicationData.UpvoteNumber + publicationData.CommentNumber - days^2
+	publicationData.Rating = publicationData.UpvoteNumber + publicationData.CommentNumber - int(math.Round(math.Pow(days, 2)))
+	
 
 	// fmt.Println(publicationData.Comments[0].Content)
 	return &publicationData
@@ -220,9 +221,9 @@ func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData
 		checkErr(err)
 		timeEnd, err := time.Parse("02-01-2006", timeNow)
 		checkErr(err)
-		days := int(math.Ceil(timeEnd.Sub(timeStart).Hours()/24))
+		days := math.Ceil(timeEnd.Sub(timeStart).Hours()/24)
 		
-		comment.Rating = comment.Like - days^2
+		comment.Rating = comment.Like - int(math.Round(math.Pow(days, 2)))
 
 		finalArray = append(finalArray, comment)
 

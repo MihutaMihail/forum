@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"forum/code/authentification"
 	"log"
+	"math"
 	"net/http"
 	"time"
 
@@ -37,6 +38,15 @@ func GetAllPosts() []PublicationData {
 			&post.Pid, &post.Title, &post.Content, &post.ImageLink,
 			&post.UpvoteNumber, &post.CreatedDate, &post.Edited, &post.Uid)
 		checkErr(err)
+
+		// RATINGS
+		timeNow := time.Now().Format("02-01-2006")
+		timeStart, err := time.Parse("02/01/2006", post.CreatedDate)
+		checkErr(err)
+		timeEnd, err := time.Parse("02-01-2006", timeNow)
+		checkErr(err)
+		days := math.Ceil(timeEnd.Sub(timeStart).Hours()/24)
+		post.Rating = post.UpvoteNumber + post.CommentNumber - int(math.Round(math.Pow(days, 2)))
 
 		// Check if post exists
 		if _, ok := existingPosts[post.Pid]; !ok {
