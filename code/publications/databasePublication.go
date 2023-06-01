@@ -35,7 +35,7 @@ func GetAllPosts() []PublicationData {
 		var post PublicationData
 		err := rows.Scan(
 			&post.Pid, &post.Title, &post.Content, &post.ImageLink,
-			&post.UpvoteNumber, &post.CreatedDate, &post.Uid)
+			&post.UpvoteNumber, &post.CreatedDate, &post.Edited, &post.Uid)
 		checkErr(err)
 
 		// Check if post exists
@@ -174,12 +174,12 @@ func UpdatePost(post PublicationData, selectedTags []string) error {
 	defer db.Close()
 
 	// POST
-	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=? WHERE pid=?")
+	query, err := db.Prepare("UPDATE publications SET title=?, content=?, image=?, edited=? WHERE pid=?")
 	if err != nil {
 		return err
 	}
 
-	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.Pid)
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, post.Edited, post.Pid)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func UpdatePost(post PublicationData, selectedTags []string) error {
 
 	for _, tag := range selectedTags {
 		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
-		if err != nil {
+		if err != nil { 
 			return err
 		}
 		defer query.Close()

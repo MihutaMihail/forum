@@ -19,9 +19,11 @@ type PublicationData struct {
 	ImageLink    string
 	UpvoteNumber int
 	CreatedDate  string
+	Edited 		 int
 	Uid          string
 
 	IsThereImage       bool
+	IsItEdited		   bool
 	Username           string
 	CommentNumber      int
 	Tags               template.HTML
@@ -84,13 +86,20 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 	preparedRequest, err := db.Prepare("SELECT * FROM Publications WHERE pid = ?;")
 	checkErr(err)
 	row := preparedRequest.QueryRow(idInt)
-	row.Scan(&publicationData.Pid, &publicationData.Title, &publicationData.Content, &publicationData.ImageLink, &publicationData.UpvoteNumber, &publicationData.CreatedDate, &publicationData.Uid)
+	row.Scan(&publicationData.Pid, &publicationData.Title, &publicationData.Content, &publicationData.ImageLink, &publicationData.UpvoteNumber, &publicationData.CreatedDate, &publicationData.Edited, &publicationData.Uid)
 
 	// isThereImage
 	if publicationData.ImageLink != "" {
 		publicationData.IsThereImage = true
 	} else {
 		publicationData.IsThereImage = false
+	}
+
+	// isItEdited
+	if publicationData.Edited == 1 {
+		publicationData.IsItEdited = true
+	} else {
+		publicationData.IsItEdited = false
 	}
 
 	// get username
