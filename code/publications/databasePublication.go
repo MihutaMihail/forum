@@ -84,7 +84,7 @@ func InsertPost(post PublicationData, selectedTags []string, w http.ResponseWrit
 	defer query.Close()
 
 	// Execute query to INSERT
-	_, err = query.Exec(post.Title, post.Content, post.ImageLink, 0, time.Now().Format("02-01-2006"), authentification.GetSessionUid(w, r))
+	_, err = query.Exec(post.Title, post.Content, post.ImageLink, 0, time.Now().Format("02/01/2006"), authentification.GetSessionUid(w, r))
 	if err != nil {
 		return err
 	}

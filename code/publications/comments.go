@@ -41,7 +41,7 @@ func AddAComment(w http.ResponseWriter, r *http.Request) {
 		commentData.Like = 0
 
 		timeNow := time.Now()
-		commentData.CreatedDate = timeNow.Format("02-01-2006")
+		commentData.CreatedDate = timeNow.Format("02/01/2006")
 
 		commentData.Content = r.FormValue("content")
 

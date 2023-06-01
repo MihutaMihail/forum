@@ -1,6 +1,7 @@
 package publications
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"forum/code/authentification"
@@ -13,7 +14,11 @@ import (
 	"strings"
 )
 
-type indexPageData struct {
+type indexPageData struct { // maybe temporary ; interface template with main body
+	Main template.HTML
+}
+
+type mainFeedData struct {
 	Publications []template.HTML
 }
 
@@ -21,14 +26,25 @@ type indexPageData struct {
 // READ
 //
 
+/*
+Write main feed
+*/
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
-	for _, post := range GetAllPosts() {
-		publication := MakePublicationHomePageTemplate(post.Pid, w, r)
-		indexData.Publications = append(indexData.Publications, publication)
-	}
 
-	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
+	// make mainFeed
+	mainFeed := mainFeedData{}
+	mainFeed.Publications = SortAllPublication(w, r)
+
+	tpl := new(bytes.Buffer)
+	tplRaw := template.Must(template.ParseFiles("templates/mainFeed.html"))
+	err := tplRaw.Execute(tpl, mainFeed)
+	checkErr(err)
+	tplString := tpl.String()
+	indexData.Main = template.HTML(tplString)
+
+	// execute with interface
+	allPosts := template.Must(template.ParseFiles("./templates/test_interface.html"))
 	allPosts.Execute(w, indexData)
 }
 

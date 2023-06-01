@@ -6,8 +6,10 @@ import (
 	"forum/code/authentification"
 	"html/template"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type PublicationData struct {
@@ -32,6 +34,8 @@ type PublicationData struct {
 	CreateCommentBox template.HTML
 
 	IsOwner bool
+
+	Rating int
 }
 type CommentData struct {
 	Cid         int
@@ -47,6 +51,8 @@ type CommentData struct {
 	DownvoteClass string
 
 	IsOwner bool
+
+	Rating int
 }
 
 const commentBoxTemplateFirst string = "<div class=\"commentBox\"><form method=\"POST\" action=\"/sendComment?pid="
@@ -137,6 +143,18 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 
 	publicationData.Comments = makeComments(publicationData.Pid, w, r)
 
+
+
+	// RATINGS
+	timeNow := time.Now().Format("02-01-2006")
+	timeStart, err := time.Parse("02/01/2006", publicationData.CreatedDate)
+	checkErr(err)
+	timeEnd, err := time.Parse("02-01-2006", timeNow)
+	checkErr(err)
+	days := int(math.Ceil(timeEnd.Sub(timeStart).Hours()/24))
+
+	publicationData.Rating = publicationData.UpvoteNumber + publicationData.CommentNumber - days^2
+
 	// fmt.Println(publicationData.Comments[0].Content)
 	return &publicationData
 }
@@ -185,9 +203,23 @@ func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData
 		
 		comment.IsOwner = (uid == comment.Uid) || isUserAdmin(w, r)
 
+		
+	
+		// RATINGS
+		timeNow := time.Now().Format("02-01-2006")
+		timeStart, err := time.Parse("02/01/2006", comment.CreatedDate)
+		checkErr(err)
+		timeEnd, err := time.Parse("02-01-2006", timeNow)
+		checkErr(err)
+		days := int(math.Ceil(timeEnd.Sub(timeStart).Hours()/24))
+		
+		comment.Rating = comment.Like - days^2
+
 		finalArray = append(finalArray, comment)
 
 	}
+
+
 
 	return finalArray
 }

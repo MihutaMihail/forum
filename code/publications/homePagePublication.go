@@ -4,15 +4,35 @@ import (
 	"bytes"
 	"html/template"
 	"net/http"
+	"sort"
 
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var publicationDataList []PublicationData
+
+/*
+Sort all publications and return them in the order it should be writen
+You can hijack it to add a if, for sorting with tags, in the loop
+*/
+func SortAllPublication(w http.ResponseWriter, r *http.Request) []template.HTML{
+	var finalList []template.HTML
+	publicationDataList = GetAllPosts()
+
+	sort.Slice(publicationDataList, sortPublicationByRatings)
+
+	for _, post := range publicationDataList { 
+		publicationData := MakePublicationHomePageTemplate(post.Pid, w, r)
+		finalList = append(finalList, publicationData)
+	}
+	return finalList
+}
 
 /*
 Take the id of a publication to give a 70% wide and 150px tall card of the publication
 */
 func MakePublicationHomePageTemplate(idPublication int, w http.ResponseWriter, r *http.Request) template.HTML {
-
+	
 	publicationData := makePublicationWithId(idPublication, w, r)
 
 	tpl := new(bytes.Buffer)
@@ -52,4 +72,8 @@ func MakeTags(tags []string) template.HTML {
 	}
 
 	return template.HTML(finalString)
+}
+
+func sortPublicationByRatings(i, j int) bool{
+	return publicationDataList[i].Rating > publicationDataList[j].Rating
 }
