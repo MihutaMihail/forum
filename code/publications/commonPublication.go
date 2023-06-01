@@ -173,6 +173,7 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 
 var finalCommentArray []CommentData
 func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData {
+	finalCommentArray = []CommentData{}
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
