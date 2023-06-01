@@ -23,6 +23,9 @@ func main() {
 	http.HandleFunc("/likes", publications.HandleLikes)
 	http.HandleFunc("/addCommentBox", publications.MakeCommentBox)
 	http.HandleFunc("/sendComment", publications.AddAComment)
+	http.HandleFunc("/publicationPageSortPertinance", publications.CommentSortPertinance)
+	http.HandleFunc("/publicationPageSortDate", publications.CommentSortDate)
+
 	http.HandleFunc("/publicationForm", publications.HandleFormPost)
 	http.HandleFunc("/checkpublicationForm", publications.CheckHandleFormPost)
 	http.HandleFunc("/publicationSubmitForm", publications.HandleSubmitForm)

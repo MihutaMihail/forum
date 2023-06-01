@@ -30,7 +30,7 @@ type PublicationData struct {
 	Tags               template.HTML
 	TagsString         []string
 	Comments           []CommentData
-	SortedByPertinance bool
+	SortedByDate bool
 
 	UpvoteClass      string
 	DownvoteClass    string
@@ -54,8 +54,6 @@ type CommentData struct {
 	DownvoteClass string
 
 	IsOwner bool
-
-	Rating int
 }
 
 const commentBoxTemplateFirst string = "<div class=\"commentBox\"><form method=\"POST\" action=\"/sendComment?pid="
@@ -151,7 +149,17 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 	checkErr(err)
 	publicationData.IsOwner = (uid == pubUidInt) || isUserAdmin(w, r)
 
+	// get the sort
+	cookie, err := r.Cookie("sortingByDate")
+	if (err == nil && cookie.Value == "true") {
+		publicationData.SortedByDate = true
+	} else {
+		publicationData.SortedByDate = false
+	}
+
 	publicationData.Comments = makeComments(publicationData.Pid, w, r)
+
+	
 
 
 
@@ -166,7 +174,6 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 	publicationData.Rating = publicationData.UpvoteNumber + publicationData.CommentNumber - int(math.Round(math.Pow(days, 2)))
 	
 
-	// fmt.Println(publicationData.Comments[0].Content)
 	return &publicationData
 }
 
@@ -216,31 +223,26 @@ func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData
 		
 		comment.IsOwner = (uid == comment.Uid) || isUserAdmin(w, r)
 
-		
-	
-		// RATINGS
-		timeNow := time.Now().Format("02-01-2006")
-		timeStart, err := time.Parse("02/01/2006", comment.CreatedDate)
-		checkErr(err)
-		timeEnd, err := time.Parse("02-01-2006", timeNow)
-		checkErr(err)
-		days := math.Ceil(timeEnd.Sub(timeStart).Hours()/24)
-		
-		comment.Rating = comment.Like - int(math.Round(math.Pow(days, 2)))
-
 		finalCommentArray = append(finalCommentArray, comment)
 
 	}
 
-	
-	
-	sort.Slice(finalCommentArray, sortCommentByRatings)
+	cookie, err := r.Cookie("sortingByDate")
+	if (err == nil && cookie.Value == "true") {
+		sort.Slice(finalCommentArray, sortCommentByDate)
+		
+	} else {
+		sort.Slice(finalCommentArray, sortCommentByLike)
+	}
 
 	return finalCommentArray
 }
 
-func sortCommentByRatings(i, j int) bool{
-	return finalCommentArray[i].Rating > finalCommentArray[j].Rating
+func sortCommentByLike(i, j int) bool{
+	return finalCommentArray[i].Like > finalCommentArray[j].Like
+}
+func sortCommentByDate(i, j int) bool{
+	return finalCommentArray[i].Cid > finalCommentArray[j].Cid
 }
 
 func refreshPublicationPage(w http.ResponseWriter, r *http.Request, pid int) {

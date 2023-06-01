@@ -64,3 +64,39 @@ func AddAComment(w http.ResponseWriter, r *http.Request) {
 	// refresh
 	refreshPublicationPage(w, r, commentData.Pid)
 }
+
+
+func CommentSortPertinance(w http.ResponseWriter, r *http.Request) {
+	pid, err := strconv.Atoi(r.URL.Query().Get("pid"))
+	checkErr(err)
+	
+	deleteCommentSortedByDateCookie(w, r)
+	
+	refreshPublicationPage(w, r, pid)
+}
+
+func CommentSortDate(w http.ResponseWriter, r *http.Request) {
+	pid, err := strconv.Atoi(r.URL.Query().Get("pid"))
+	checkErr(err)
+
+	setCommentSortedByDateCookie(w, r)
+	
+	refreshPublicationPage(w, r, pid)
+}
+
+func setCommentSortedByDateCookie(w http.ResponseWriter, r *http.Request) {
+	expiration := time.Now().Add(6 * time.Hour)
+	cookie, err := r.Cookie("sortingByDate")
+	if err != nil {
+		cookie = &http.Cookie{Name: "sortingByDate", Value: "true", Expires: expiration}
+		http.SetCookie(w, cookie)
+	}
+	// I'm hungry now
+}
+
+func deleteCommentSortedByDateCookie(w http.ResponseWriter, r *http.Request) {
+	expiration := time.Now().Add(-time.Hour) // expiration in the past, it delete
+	cookie := &http.Cookie{Name: "sortingByDate", Value: "false", Expires: expiration}
+
+	http.SetCookie(w, cookie)
+}

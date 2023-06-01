@@ -59,7 +59,7 @@
                 <a class="publicationPageCreateComment" href="/addCommentBox?pid={{.Pid}}">+ Répondre</a>
             </div>
             <div class="publicationPageSortComment">Trier par : 
-                <button class="publicationPageSortCommentBtn publicationPageSortCommentBtnSelected">Pertinance</button> | <button class="publicationPageSortCommentBtn">Nouveau</button>
+                <a href="/publicationPageSortPertinance?pid={{.Pid}}" class="publicationPageSortCommentBtn {{if .SortedByDate}}{{else}}publicationPageSortCommentBtnSelected{{end}}">Pertinance</a> | <a href="/publicationPageSortDate?pid={{.Pid}}" class="publicationPageSortCommentBtn {{if .SortedByDate}}publicationPageSortCommentBtnSelected{{end}}">Nouveau</a>
             </div>
         </div>
         {{.CreateCommentBox}}
