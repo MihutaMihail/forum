@@ -45,11 +45,12 @@
     </div>
   </div>
   <div id="filtres">
+    {{if .FilterBarOn}}
     <div id="searchBar">
-      <form action="">
-        <span>FILTRES</span>
-        <select>
-          <option value="ALL">Tous</option>
+      <form action="/">
+        <span><button type="submit">FILTRER</button></span>
+        <select name="tag">
+          <option value="ALL">ALL</option>
           <option value="Gaming">Gaming</option>
           <option value="Lifestyle">Lifestyle</option>
           <option value="Space">Space</option>
@@ -59,4 +60,5 @@
       </form>
     </div>
   </div>
+  {{end}}
 </main>

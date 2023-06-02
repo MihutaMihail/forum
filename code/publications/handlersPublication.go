@@ -25,6 +25,7 @@ type mainFeedData struct {
 
 type headerData struct {
 	HeaderData      template.HTML
+	FilterBarOn 	bool
 	IsUserConnected bool
 }
 
@@ -38,9 +39,13 @@ Write main feed
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
 
+	// get tag value (filter)
+	r.ParseForm()
+	tag := r.FormValue("tag")
+
 	// make mainFeed
 	mainFeed := mainFeedData{}
-	mainFeed.Publications = SortAllPublication(w, r)
+	mainFeed.Publications = SortAllPublication(w, r, tag)
 
 	tplMain := new(bytes.Buffer)
 	tplRawMain := template.Must(template.ParseFiles("templates/mainFeed.html"))
@@ -49,7 +54,7 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	tplStringMain := tplMain.String()
 	indexData.Main = template.HTML(tplStringMain)
 
-	indexData.Header = MakeHeaderTemplate(w, r)
+	indexData.Header = MakeHeaderTemplate(w, r, true)
 
 	// execute with interface
 	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
@@ -92,25 +97,8 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Database - Get Tags
-	db, err := sql.Open("sqlite3", "./database.db")
-	checkErr(err)
-	defer db.Close()
-
-	preparedRequest, err := db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
-	checkErr(err)
-	rows, err := preparedRequest.Query(post.Pid)
-	checkErr(err)
-	defer rows.Close()
-
-	var tagArray []string
-	for rows.Next() {
-		var tag string
-		err = rows.Scan(&tag)
-		checkErr(err)
-		tagArray = append(tagArray, tag)
-	}
-	post.TagsString = tagArray
+	// Retrieve tags
+	post.TagsString = GetTagsString(post.Pid)
 
 	// Change to UPDATE POST
 	formPost.Execute(w, post)

@@ -15,16 +15,26 @@ var publicationDataList []PublicationData
 Sort all publications and return them in the order it should be writen
 You can hijack it to add a if, for sorting with tags, in the loop
 */
-func SortAllPublication(w http.ResponseWriter, r *http.Request) []template.HTML{
+func SortAllPublication(w http.ResponseWriter, r *http.Request, tagFilter string) []template.HTML{
 	var finalList []template.HTML
 	publicationDataList = GetAllPosts()
-
 	sort.Slice(publicationDataList, sortPublicationByRatings)
 
-	for _, post := range publicationDataList { 
-		publicationData := MakePublicationHomePageTemplate(post.Pid, w, r)
-		finalList = append(finalList, publicationData)
-	}
+	for _, post := range publicationDataList {
+        if tagFilter != "" && tagFilter != "ALL" {
+			post.TagsString = GetTagsString(post.Pid)
+            for _, tag := range post.TagsString {
+                if tag == tagFilter {
+					publicationData := MakePublicationHomePageTemplate(post.Pid, w, r)
+                    finalList = append(finalList, publicationData)
+                }
+            }
+        } else {
+            publicationData := MakePublicationHomePageTemplate(post.Pid, w, r)
+            finalList = append(finalList, publicationData)
+        }
+    }
+
 	return finalList
 }
 

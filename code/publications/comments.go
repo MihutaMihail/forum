@@ -18,7 +18,7 @@ func MakeCommentBox(w http.ResponseWriter, r *http.Request) {
 
 	indexData := indexPageData{}
 	indexData.Main = parsePublicationPage(w, r, true, pid)
-	indexData.Header = MakeHeaderTemplate(w, r)
+	indexData.Header = MakeHeaderTemplate(w, r, false)
 
 	tpl := template.Must(template.ParseFiles("templates/publicationListTemplate.html"))
 

@@ -3,10 +3,10 @@ package publications
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"forum/code/authentification"
 	"html/template"
 	"log"
+	"fmt"
 	"math"
 	"net/http"
 	"sort"
@@ -126,6 +126,7 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 		tagArray = append(tagArray, tag)
 	}
 	publicationData.Tags = MakeTags(tagArray)
+	publicationData.TagsString = tagArray
 
 	// liked or not by session user
 	uid := authentification.GetSessionUid(w, r)
@@ -249,7 +250,7 @@ func sortCommentByDate(i, j int) bool{
 func refreshPublicationPage(w http.ResponseWriter, r *http.Request, pid int) {
 	indexData := indexPageData{}
 	indexData.Main = parsePublicationPage(w, r, false, pid)
-	indexData.Header = MakeHeaderTemplate(w, r)
+	indexData.Header = MakeHeaderTemplate(w, r, false)
 
 	tpl := template.Must(template.ParseFiles("templates/publicationListTemplate.html"))
 
@@ -257,14 +258,21 @@ func refreshPublicationPage(w http.ResponseWriter, r *http.Request, pid int) {
 	checkErr(err)
 }
 
-func MakeHeaderTemplate(w http.ResponseWriter, r *http.Request) template.HTML{
-	
+func MakeHeaderTemplate(w http.ResponseWriter, r *http.Request, filterBarOn bool) template.HTML{
 	headerData := headerData{}
+
 	// check if user is connected
 	if authentification.CheckSessionUid(w, r) == nil {
 		headerData.IsUserConnected = true
 	} else {
 		headerData.IsUserConnected = false
+	}
+
+	// turn on or off filter bar
+	if filterBarOn {
+		headerData.FilterBarOn = true
+	} else {
+		headerData.FilterBarOn = false
 	}
 
 	// make header

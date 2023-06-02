@@ -15,9 +15,8 @@ func main() {
 	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
 	http.Handle("/assets/js/", http.StripPrefix("/assets/js/", http.FileServer(http.Dir("assets/js"))))
 	http.Handle("/assets/img/", http.StripPrefix("/assets/img/", http.FileServer(http.Dir("assets/img"))))
-	// TEMPORARY
 	http.Handle("/assets/uploads/", http.StripPrefix("/assets/uploads/", http.FileServer(http.Dir("assets/uploads"))))
-	// TEMPORARY
+
 	http.HandleFunc("/", publications.HandleAllPosts)
 
 	http.HandleFunc("/publication", publications.HandlePublication)

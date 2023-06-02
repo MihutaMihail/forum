@@ -78,6 +78,28 @@ func GetPostByID(id int) PublicationData {
 	return PublicationData{}
 }
 
+func GetTagsString(pid int) []string {
+	db, err := sql.Open("sqlite3", "./database.db")
+	checkErr(err)
+	defer db.Close()
+
+	preparedRequest, err := db.Prepare("SELECT name FROM Tags WHERE pid = ?;")
+	checkErr(err)
+	rows, err := preparedRequest.Query(pid)
+	checkErr(err)
+	defer rows.Close()
+
+	var tagArray []string
+	for rows.Next() {
+		var tag string
+		err = rows.Scan(&tag)
+		checkErr(err)
+		tagArray = append(tagArray, tag)
+	}
+
+	return tagArray
+}
+
 //
 // INSERT
 //

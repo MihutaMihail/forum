@@ -10,7 +10,7 @@ import (
 func HandlePublication(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
 	indexData.Main = parsePublicationPage(w, r, false)
-	indexData.Header = MakeHeaderTemplate(w, r)
+	indexData.Header = MakeHeaderTemplate(w, r, false)
 
 	tpl := template.Must(template.ParseFiles("templates/publicationListTemplate.html"))
 
