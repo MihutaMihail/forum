@@ -41,11 +41,13 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 
 	// get tag value (filter)
 	r.ParseForm()
-	tag := r.FormValue("tag")
+	tag := r.FormValue("tag") 
+
+	postValue := r.FormValue("postValue")
 
 	// make mainFeed
 	mainFeed := mainFeedData{}
-	mainFeed.Publications = SortAllPublication(w, r, tag)
+	mainFeed.Publications = SortAllPublication(w, r, tag, postValue)
 
 	tplMain := new(bytes.Buffer)
 	tplRawMain := template.Must(template.ParseFiles("templates/mainFeed.html"))
@@ -69,7 +71,7 @@ func CheckHandleFormPost(w http.ResponseWriter, r *http.Request) {
 	if authentification.CheckSessionUid(w, r) == nil {
 		http.Redirect(w, r, "/publicationForm", http.StatusFound)
 	} else {
-		http.Redirect(w, r, "/", http.StatusNotFound)
+		http.Redirect(w, r, "/login", http.StatusFound)
 	}
 }
 

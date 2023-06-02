@@ -30,12 +30,18 @@
       <!-- Mes publications -->
       <div class="subMenu">
         <img src="../assets/img/news.png" alt="" class="menuImage" />
-        <a href=""> Mes publications</a>
+        <form action="/" method="post">
+          <input type="hidden" name="postValue" value="myPosts" />
+          <a><button type="submit">Mes publications</button></a>
+        </form>
       </div>
       <!-- Publications aimées -->
       <div class="subMenu">
         <img src="../assets/img/like.png" alt="" class="menuImage" />
-        <a href=""> Publications aimées</a>
+        <form action="/" method="post">
+          <input type="hidden" name="postValue" value="likedPosts" />
+          <a><button type="submit">Publications aimées</button></a>
+        </form>
       </div>
     </div>
     <div id="log_out">

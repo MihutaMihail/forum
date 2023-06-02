@@ -20,17 +20,30 @@ var (
 // SELECT
 //
 
-func GetAllPosts() []PublicationData {
+func GetAllPosts(postValue string, uid int) []PublicationData {
 	// Open database
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
 
-	// Prepare SQL query to SELECT ALL POSTS
-	rows, err := db.Query("SELECT * FROM publications")
+	var query string
+	var args []interface{}
+
+	if postValue == "myPosts" {
+		query = "SELECT * FROM publications WHERE uid=?"
+		args = []interface{}{uid}
+	} else {
+		query = "SELECT * FROM publications"
+		args = nil
+	}
+
+	rows, err := db.Query(query, args...)
 	checkErr(err)
 	defer rows.Close()
 
+
+	posts = nil
+	existingPosts = make(map[int]bool)
 	// Store the select posts
 	for rows.Next() {
 		var post PublicationData
@@ -122,7 +135,7 @@ func InsertPost(post PublicationData, selectedTags []string, w http.ResponseWrit
 	}
 
 	// Get last POST which is current POST
-	posts := GetAllPosts()
+	posts := GetAllPosts("", 0)
 	lastPost := posts[len(posts)-1]
 
 	// Insert tags
