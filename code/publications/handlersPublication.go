@@ -11,16 +11,21 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
+	"strings" 
 )
 
 type indexPageData struct { // maybe temporary ; interface template with main body
-	Main template.HTML
-	IsUserConnected bool
+	Main   template.HTML
+	Header template.HTML
 }
 
 type mainFeedData struct {
 	Publications []template.HTML
+}
+
+type headerData struct {
+	HeaderData      template.HTML
+	IsUserConnected bool
 }
 
 //
@@ -32,24 +37,34 @@ Write main feed
 */
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
+	headerData := headerData{}
 
 	// make mainFeed
 	mainFeed := mainFeedData{}
 	mainFeed.Publications = SortAllPublication(w, r)
 
-	tpl := new(bytes.Buffer)
-	tplRaw := template.Must(template.ParseFiles("templates/mainFeed.html"))
-	err := tplRaw.Execute(tpl, mainFeed)
+	tplMain := new(bytes.Buffer)
+	tplRawMain := template.Must(template.ParseFiles("templates/mainFeed.html"))
+	err := tplRawMain.Execute(tplMain, mainFeed)
 	checkErr(err)
-	tplString := tpl.String()
-	indexData.Main = template.HTML(tplString)
+	tplStringMain := tplMain.String()
+	indexData.Main = template.HTML(tplStringMain)
 
 	// check if user is connected
 	if authentification.CheckSessionUid(w, r) == nil {
-		indexData.IsUserConnected = true
+		headerData.IsUserConnected = true
 	} else {
-		indexData.IsUserConnected = false
+		headerData.IsUserConnected = false
 	}
+
+	// make header
+	tplHeader := new(bytes.Buffer)
+	tplRawHeader := template.Must(template.ParseFiles("templates/headerTemplate.html"))
+	err = tplRawHeader.Execute(tplHeader, headerData)
+	checkErr(err)
+	tplStringHeader := tplHeader.String()
+
+	indexData.Header = template.HTML(tplStringHeader)
 
 	// execute with interface
 	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
@@ -123,7 +138,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 
 	//
 	// Image
-	// 
+	//
 
 	file, header, err := r.FormFile("image")
 	if err != nil {
@@ -162,7 +177,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 		}
 	} else if (r.FormValue("imageName") != "") && r.FormValue("addImageBoolean") == "true" {
 		newPost.ImageLink = r.FormValue("imageName")
-	} 
+	}
 
 	//
 	// Title, Content, Tags
@@ -199,7 +214,7 @@ func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid post ID", http.StatusBadRequest)
 			return
 		}
-		post := GetPostByID(postId)			
+		post := GetPostByID(postId)
 		post.Title = newPost.Title
 		post.Content = newPost.Content
 		post.ImageLink = newPost.ImageLink
@@ -229,11 +244,11 @@ func HandleDeletePost(w http.ResponseWriter, r *http.Request) {
 
 	sessionUser := authentification.GetSessionUid(w, r)
 	isAdmin := isUserAdmin(w, r)
-	
+
 	uidInt, err := strconv.Atoi(post.Uid)
 	checkErr(err)
 	// check if the user is the owner, or an admin
-	if (uidInt == sessionUser || isAdmin) {
+	if uidInt == sessionUser || isAdmin {
 		DeletePost(post)
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
@@ -254,9 +269,8 @@ func getQueryID(w http.ResponseWriter, r *http.Request) (int, error) {
 	return id, err
 }
 
-
 // return true if sessionUser is admin, else false
-func isUserAdmin(w http.ResponseWriter, r *http.Request) (bool) {
+func isUserAdmin(w http.ResponseWriter, r *http.Request) bool {
 	// open Db
 	sessionUser := authentification.GetSessionUid(w, r)
 	db, err := sql.Open("sqlite3", "./database.db")
@@ -264,13 +278,13 @@ func isUserAdmin(w http.ResponseWriter, r *http.Request) (bool) {
 	defer db.Close()
 
 	// if not connected
-	if (sessionUser == 0) {
+	if sessionUser == 0 {
 		return false
 	}
 
 	preparedRequest, err := db.Prepare("SELECT admin FROM Users WHERE uid = ?;")
 	checkErr(err)
-	isAdmin := 0;
+	isAdmin := 0
 	row := preparedRequest.QueryRow(sessionUser)
 	row.Scan(&isAdmin)
 
@@ -281,14 +295,14 @@ func DeleteComment(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("sqlite3", "./database.db")
 	checkErr(err)
 	defer db.Close()
-	
+
 	// get the cid from query url
 	cid := r.URL.Query().Get("id")
 
 	// get the pid of the comm
 	preparedRequest, err := db.Prepare("SELECT pid FROM Comments WHERE cid = ?;")
 	checkErr(err)
-	pid := 0;
+	pid := 0
 	row := preparedRequest.QueryRow(cid)
 	row.Scan(&pid)
 

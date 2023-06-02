@@ -1,0 +1,62 @@
+<header>
+  <nav>
+    <div id="logo">
+      <h1>LOGO</h1>
+    </div>
+    <div id="profil">
+      {{if .IsUserConnected}}
+      <a href="/profil"> Voir profil</a>
+      {{else}}
+      <a href="/login"> Connexion</a>
+      <a href="/register"> Inscription</a>
+      {{end}}
+    </div>
+  </nav>
+</header>
+
+<main id="bodyOfAcceuil">
+  <div id="column1">
+    <div id="menu">
+      <!-- Accueil -->
+      <div class="subMenu">
+        <img src="../assets/img/accueil.png" alt="" class="menuImage" />
+        <a href="/"> Accueil</a>
+      </div>
+      <!-- Ajouter une publication -->
+      <div class="subMenu">
+        <img src="../assets/img/add.png" alt="" class="menuImage" />
+        <a href="/checkpublicationForm"> Nouvelle publication</a>
+      </div>
+      <!-- Mes publications -->
+      <div class="subMenu">
+        <img src="../assets/img/news.png" alt="" class="menuImage" />
+        <a href=""> Mes publications</a>
+      </div>
+      <!-- Publications aimées -->
+      <div class="subMenu">
+        <img src="../assets/img/like.png" alt="" class="menuImage" />
+        <a href=""> Publications aimées</a>
+      </div>
+    </div>
+    <div id="log_out">
+      {{if .IsUserConnected}}
+      <a href="">DECONNEXION</a>
+      {{end}}
+    </div>
+  </div>
+  <div id="filtres">
+    <div id="searchBar">
+      <form action="">
+        <span>FILTRES</span>
+        <select>
+          <option value="ALL">Tous</option>
+          <option value="Gaming">Gaming</option>
+          <option value="Lifestyle">Lifestyle</option>
+          <option value="Space">Space</option>
+          <option value="Art">Art</option>
+          <option value="Nature">Nature</option>
+        </select>
+      </form>
+    </div>
+  </div>
+</main>

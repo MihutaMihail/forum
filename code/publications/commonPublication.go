@@ -126,7 +126,7 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 	}
 	publicationData.Tags = MakeTags(tagArray)
 
-	//liked or not by session user
+	// liked or not by session user
 	uid := authentification.GetSessionUid(w, r)
 	if uid != 0 {
 		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
@@ -257,4 +257,3 @@ func checkErr(err error) {
 		log.Panic(err)
 	}
 }
-

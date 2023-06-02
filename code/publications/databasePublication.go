@@ -45,7 +45,7 @@ func GetAllPosts() []PublicationData {
 		checkErr(err)
 		timeEnd, err := time.Parse("02-01-2006", timeNow)
 		checkErr(err)
-		days := math.Ceil(timeEnd.Sub(timeStart).Hours()/24)
+		days := math.Ceil(timeEnd.Sub(timeStart).Hours() / 24)
 		post.Rating = post.UpvoteNumber + post.CommentNumber - int(math.Round(math.Pow(days, 2)))
 
 		// Check if post exists
@@ -207,7 +207,7 @@ func UpdatePost(post PublicationData, selectedTags []string) error {
 
 	for _, tag := range selectedTags {
 		query, err := db.Prepare("INSERT INTO tags(name, pid) VALUES(?, ?)")
-		if err != nil { 
+		if err != nil {
 			return err
 		}
 		defer query.Close()
