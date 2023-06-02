@@ -9,7 +9,7 @@ import (
 
 func HandlePublication(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
-	indexData.Main = parsePublicationPage(w, r)
+	indexData.Main = parsePublicationPage(w, r, false)
 	indexData.Header = MakeHeaderTemplate(w, r)
 
 	tpl := template.Must(template.ParseFiles("templates/publicationListTemplate.html"))
@@ -18,12 +18,26 @@ func HandlePublication(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 }
 
-func parsePublicationPage(w http.ResponseWriter, r *http.Request) template.HTML{
-	// get id and the corresponding data
+func parsePublicationPage(w http.ResponseWriter, r *http.Request, commentBox bool, pid ...int) template.HTML{
+	// get id and the corresponding data by url or signature
+	var id int
+	var err error
+ 	var publicationData *PublicationData
+
 	r.ParseForm()
-	id, err := strconv.Atoi(r.URL.Query().Get("pid"))
-	checkErr(err)
-	publicationData := makePublicationWithId(id, w, r)
+	if (len(pid) != 0) {
+		id = pid[0]
+	} else {
+		id, err = strconv.Atoi(r.URL.Query().Get("pid"))
+		checkErr(err)
+	}
+
+	// if the publication is made with a comment box
+	if commentBox {
+		publicationData = makePublicationWithId(id, w, r, "addCommentBox")
+	} else {
+		publicationData = makePublicationWithId(id, w, r)
+	}
 
 	tpl := new(bytes.Buffer)
 	tplRaw := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))

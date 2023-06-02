@@ -247,9 +247,13 @@ func sortCommentByDate(i, j int) bool{
 }
 
 func refreshPublicationPage(w http.ResponseWriter, r *http.Request, pid int) {
-	publicationData := makePublicationWithId(pid, w, r)
-	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
-	err := tpl.Execute(w, publicationData)
+	indexData := indexPageData{}
+	indexData.Main = parsePublicationPage(w, r, false, pid)
+	indexData.Header = MakeHeaderTemplate(w, r)
+
+	tpl := template.Must(template.ParseFiles("templates/publicationListTemplate.html"))
+
+	err := tpl.Execute(w, indexData)
 	checkErr(err)
 }
 

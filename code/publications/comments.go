@@ -15,11 +15,14 @@ Handle for the first click to add a comment ; call the same page with a commentB
 func MakeCommentBox(w http.ResponseWriter, r *http.Request) {
 	pid, err := strconv.Atoi(r.URL.Query().Get("pid"))
 	checkErr(err)
-	publicationData := makePublicationWithId(pid, w, r, "addCommentBox")
 
-	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
+	indexData := indexPageData{}
+	indexData.Main = parsePublicationPage(w, r, true, pid)
+	indexData.Header = MakeHeaderTemplate(w, r)
 
-	err = tpl.Execute(w, publicationData)
+	tpl := template.Must(template.ParseFiles("templates/publicationListTemplate.html"))
+
+	err = tpl.Execute(w, indexData)
 	checkErr(err)
 }
 
