@@ -7,14 +7,9 @@ import (
 ) 
 
 func HandlePublication(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Expected POST, found "+r.Method, http.StatusBadRequest) // 400
-		return                                                                 /*template.HTML("err 400: bad Request")*/
-	}
-	
 	// get id and the corresponding data
 	r.ParseForm()
-	id, err := strconv.Atoi(r.FormValue("idPublication"))
+	id, err := strconv.Atoi(r.URL.Query().Get("pid"))
 	checkErr(err)
 	publicationData := makePublicationWithId(id, w, r)
 

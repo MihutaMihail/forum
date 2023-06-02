@@ -2,13 +2,11 @@
     <div class="publicationTop">
         <div class="publicationTopLeft">
             <div class="publicationUsername">{{.Username}}</div>
-            <form action="/publication" method="post">
-                <button name="idPublication" value="{{.Pid}}">
-                    <div class="publicationTitle">{{.Title}}
-                       <span style="white-space: nowrap; font-size: 15px;">{{ if .Edited }} (edited) {{ end }}</span>
-                    </div>
-                </button>
-            </form>
+            <a href="/publication?pid={{.Pid}}">
+                <div class="publicationTitle">{{.Title}}
+                    <span style="white-space: nowrap; font-size: 15px;">{{ if .Edited }} (edited) {{ end }}</span>
+                </div>
+            </a>
         </div>
         <div class="publicationTags">
             {{.Tags}}

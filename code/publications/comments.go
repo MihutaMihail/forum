@@ -71,8 +71,7 @@ func CommentSortPertinance(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	
 	deleteCommentSortedByDateCookie(w, r)
-	
-	refreshPublicationPage(w, r, pid)
+	http.Redirect(w, r, "/publication?pid=" + strconv.Itoa(pid), http.StatusSeeOther)
 }
 
 func CommentSortDate(w http.ResponseWriter, r *http.Request) {
@@ -80,8 +79,7 @@ func CommentSortDate(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 
 	setCommentSortedByDateCookie(w, r)
-	
-	refreshPublicationPage(w, r, pid)
+	http.Redirect(w, r, "/publication?pid=" + strconv.Itoa(pid), http.StatusSeeOther)
 }
 
 func setCommentSortedByDateCookie(w http.ResponseWriter, r *http.Request) {
