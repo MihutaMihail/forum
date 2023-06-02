@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings" 
+	"strings"
 )
 
 type indexPageData struct { // maybe temporary ; interface template with main body
@@ -37,7 +37,6 @@ Write main feed
 */
 func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	indexData := indexPageData{}
-	headerData := headerData{}
 
 	// make mainFeed
 	mainFeed := mainFeedData{}
@@ -50,21 +49,7 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	tplStringMain := tplMain.String()
 	indexData.Main = template.HTML(tplStringMain)
 
-	// check if user is connected
-	if authentification.CheckSessionUid(w, r) == nil {
-		headerData.IsUserConnected = true
-	} else {
-		headerData.IsUserConnected = false
-	}
-
-	// make header
-	tplHeader := new(bytes.Buffer)
-	tplRawHeader := template.Must(template.ParseFiles("templates/headerTemplate.html"))
-	err = tplRawHeader.Execute(tplHeader, headerData)
-	checkErr(err)
-	tplStringHeader := tplHeader.String()
-
-	indexData.Header = template.HTML(tplStringHeader)
+	indexData.Header = MakeHeaderTemplate(w, r)
 
 	// execute with interface
 	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))

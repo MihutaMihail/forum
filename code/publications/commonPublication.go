@@ -1,6 +1,7 @@
 package publications
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"forum/code/authentification"
@@ -250,6 +251,26 @@ func refreshPublicationPage(w http.ResponseWriter, r *http.Request, pid int) {
 	tpl := template.Must(template.ParseFiles("templates/publicationPageTemplate.html"))
 	err := tpl.Execute(w, publicationData)
 	checkErr(err)
+}
+
+func MakeHeaderTemplate(w http.ResponseWriter, r *http.Request) template.HTML{
+	
+	headerData := headerData{}
+	// check if user is connected
+	if authentification.CheckSessionUid(w, r) == nil {
+		headerData.IsUserConnected = true
+	} else {
+		headerData.IsUserConnected = false
+	}
+
+	// make header
+	tplHeader := new(bytes.Buffer)
+	tplRawHeader := template.Must(template.ParseFiles("templates/headerTemplate.html"))
+	err := tplRawHeader.Execute(tplHeader, headerData)
+	checkErr(err)
+	tplStringHeader := tplHeader.String()
+
+	return template.HTML(tplStringHeader)
 }
 
 func checkErr(err error) {
