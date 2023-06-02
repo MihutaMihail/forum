@@ -56,7 +56,11 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	tplStringMain := tplMain.String()
 	indexData.Main = template.HTML(tplStringMain)
 
-	indexData.Header = MakeHeaderTemplate(w, r, true)
+	if postValue != "" {
+		indexData.Header = MakeHeaderTemplate(w, r, false)
+	} else {
+		indexData.Header = MakeHeaderTemplate(w, r, true)
+	}
 
 	// execute with interface
 	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))

@@ -18,6 +18,7 @@ You can hijack it to add a if, for sorting with tags, in the loop
 */
 func SortAllPublication(w http.ResponseWriter, r *http.Request, tagFilter string, postValue string) []template.HTML{
 	var finalList []template.HTML
+
 	publicationDataList = GetAllPosts(postValue, authentification.GetSessionUid(w,r))
 	sort.Slice(publicationDataList, sortPublicationByRatings)
 
