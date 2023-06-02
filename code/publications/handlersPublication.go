@@ -16,6 +16,7 @@ import (
 
 type indexPageData struct { // maybe temporary ; interface template with main body
 	Main template.HTML
+	IsUserConnected bool
 }
 
 type mainFeedData struct {
@@ -43,8 +44,15 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 	tplString := tpl.String()
 	indexData.Main = template.HTML(tplString)
 
+	// check if user is connected
+	if authentification.CheckSessionUid(w, r) == nil {
+		indexData.IsUserConnected = true
+	} else {
+		indexData.IsUserConnected = false
+	}
+
 	// execute with interface
-	allPosts := template.Must(template.ParseFiles("./templates/test_interface.html"))
+	allPosts := template.Must(template.ParseFiles("./templates/publicationListTemplate.html"))
 	allPosts.Execute(w, indexData)
 }
 
@@ -53,7 +61,7 @@ func HandleAllPosts(w http.ResponseWriter, r *http.Request) {
 //
 
 func CheckHandleFormPost(w http.ResponseWriter, r *http.Request) {
-	if authentification.CheckSessionUid(w,r) == nil {
+	if authentification.CheckSessionUid(w, r) == nil {
 		http.Redirect(w, r, "/publicationForm", http.StatusFound)
 	} else {
 		http.Redirect(w, r, "/", http.StatusNotFound)
@@ -69,7 +77,6 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	if idStr == "" {
 		var postEmpty PublicationData
 		postEmpty.Pid = -1
-
 		formPost.Execute(w, postEmpty)
 		return
 	}

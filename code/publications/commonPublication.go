@@ -73,9 +73,9 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 
 	for _, arg := range args {
 		switch arg {
-		case "addCommentBox": 
+		case "addCommentBox":
 			publicationData.CreateCommentBox = template.HTML(commentBoxTemplateFirst + strconv.Itoa(idInt) + commentBoxTemplateSecond)
-			break;
+			break
 		default:
 			fmt.Println("Warning : invalid arg at call to makePublicationWithId")
 		}
@@ -127,7 +127,7 @@ func makePublicationWithId(idInt int, w http.ResponseWriter, r *http.Request, ar
 	publicationData.Tags = MakeTags(tagArray)
 
 	//liked or not by session user
-	uid  := authentification.GetSessionUid(w, r)
+	uid := authentification.GetSessionUid(w, r)
 	if uid != 0 {
 		preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (pid = ? AND pid != 0);")
 		checkErr(err)
@@ -202,7 +202,7 @@ func makeComments(Pid int, w http.ResponseWriter, r *http.Request) []CommentData
 		preparedRequest.QueryRow(comment.Uid).Scan(&comment.Username)
 
 		//liked or not by session user
-		
+
 		uid := authentification.GetSessionUid(w, r)
 		if uid != 0 {
 			preparedRequest, err = db.Prepare("SELECT isLike FROM Likes WHERE uid = ? AND (cid = ? AND cid != 0);")
