@@ -37,6 +37,7 @@ func main() {
 	http.HandleFunc("/register", authentification.Register)
 	http.HandleFunc("/print", authentification.Print)
 	http.HandleFunc("/registerGet", authentification.RegisterGet)
+	http.HandleFunc("/logout", authentification.LogoutHandler)
 	// http.HandleFunc("/delete", authentification.Reset)
 
 	fmt.Println("Serving on port 8080")

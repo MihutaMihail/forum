@@ -37,6 +37,19 @@ func GetSessionUid(w http.ResponseWriter, r *http.Request) int {
 
 }
 
+func DeleteSessionCookie(w http.ResponseWriter, r *http.Request) error {
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		return nil
+	}
+
+	cookie.Value = ""
+	cookie.MaxAge = -1
+	http.SetCookie(w, cookie)
+
+	return nil
+}
+
 func CheckSessionUid(w http.ResponseWriter, r *http.Request) error {
 	_, err := r.Cookie("session")
 	if err != nil {
