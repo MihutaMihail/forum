@@ -32,6 +32,9 @@ func GetAllPosts(postValue string, uid int) []PublicationData {
 	if postValue == "myPosts" {
 		query = "SELECT * FROM publications WHERE uid=?"
 		args = []interface{}{uid}
+	} else if postValue == "likedPosts" {
+		query = "SELECT p.* FROM Publications p INNER JOIN Likes l ON p.pid = l.pid WHERE l.uid=? AND l.isLike = 1;"
+		args = []interface{}{uid}
 	} else {
 		query = "SELECT * FROM publications"
 		args = nil
