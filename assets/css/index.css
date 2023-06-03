@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: #6D7993;
+    background-color: rgb(63, 63, 68);
 }
 
 #centerBox {
@@ -20,7 +20,7 @@ body {
 
 }
 
-#centerBox h3 {
+#centerBox h2 {
     text-align: center;
     color: #6D7993;
     text-decoration: underline;
@@ -28,6 +28,7 @@ body {
 
 #centerBoxForm {
     padding-inline: 15%;
+    text-align: center;
 }
 
 #centerBoxForm input {
@@ -38,8 +39,8 @@ body {
     padding-block: 2%;
     padding-left: 5%;
     max-width: 90%;
+    font-size: 17px;
 }
-
 
 #centerBoxForm button {
     width: 50%;
@@ -48,9 +49,21 @@ body {
     border: #6D7993 1px solid;
     border-radius: 20px;
     background-color: #6D7993;
-    color: #F5F5F5;
+    color: #F5F5F5; 
+    font-size: 20px;
 }
 
+p {
+    text-align: center;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+a {
+    text-decoration: underline; 
+    color: blue;
+}
+
+/* TEST */
 #centerBoxFormPrint {
     text-align: center;
     padding-top: 2%;
