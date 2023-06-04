@@ -17,6 +17,7 @@ import (
 type indexPageData struct { // maybe temporary ; interface template with main body
 	Main   template.HTML
 	Header template.HTML
+	FormPublication PublicationData
 }
 
 type mainFeedData struct {
@@ -80,7 +81,9 @@ func CheckHandleFormPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleFormPost(w http.ResponseWriter, r *http.Request) {
-	formPost := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
+	indexData := indexPageData{}
+	indexData.Header = MakeHeaderTemplate(w, r, false)
+
 	// Get the ID from the query parameters
 	idStr := r.URL.Query().Get("id")
 
@@ -88,7 +91,11 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	if idStr == "" {
 		var postEmpty PublicationData
 		postEmpty.Pid = -1
-		formPost.Execute(w, postEmpty)
+		indexData.FormPublication = postEmpty
+	
+		tpl := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
+		err := tpl.Execute(w, indexData)
+		checkErr(err)
 		return
 	}
 	id, err := strconv.Atoi(idStr)
@@ -107,7 +114,11 @@ func HandleFormPost(w http.ResponseWriter, r *http.Request) {
 	post.TagsString = GetTagsString(post.Pid)
 
 	// Change to UPDATE POST
-	formPost.Execute(w, post)
+	indexData.FormPublication = post
+
+	tpl := template.Must(template.ParseFiles("./templates/publicationFormTemplate.html"))
+	err = tpl.Execute(w, indexData)
+	checkErr(err)
 }
 
 func HandleSubmitForm(w http.ResponseWriter, r *http.Request) {

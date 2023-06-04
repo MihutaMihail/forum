@@ -50,8 +50,13 @@ function displayImage() {
 
 // Add new tag
 function addTag(selectedTag) {
+    var selectedTagsDiv = document.getElementById('selectedTags');
     var selectedTagsList = document.getElementById('selected-tags');
     var selectedTagsInput = document.getElementById('selected-tags-input');
+
+    if (selectedTagsList.childElementCount  === 0) {
+        selectedTagsDiv.style.display = 'block'; 
+    }
 
     var tagExists = Array.from(
         selectedTagsList.getElementsByTagName("li")).some(li => li.innerText === selectedTag || 
@@ -67,10 +72,15 @@ function addTag(selectedTag) {
         // Add delete button
         var deleteButton = document.createElement("button");
         deleteButton.innerText = "x";
+        deleteButton.classList.add("deleteTags-button");
         deleteButton.onclick = function() {
             newTag.remove();
             var selectedTags = Array.from(selectedTagsList.getElementsByTagName("li")).map(li => li.innerText);
             selectedTagsInput.value = JSON.stringify(selectedTags);
+
+            if (selectedTags.length === 0) {
+                selectedTagsDiv.style.display = 'none'; 
+            }
         };
         newTag.appendChild(deleteButton);
 

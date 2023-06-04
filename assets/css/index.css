@@ -22,7 +22,7 @@ body {
 
 #centerBox h2 {
     text-align: center;
-    color: #6D7993;
+    color: rgb(63, 63, 68);
     text-decoration: underline;
 }
 
@@ -33,7 +33,7 @@ body {
 
 #centerBoxForm input {
     margin-block: 5%;
-    border: #6D7993 solid 1px;
+    border: rgb(63, 63, 68) solid 1px;
     border-radius: 20px;
     background-color: #F5F5F5;
     padding-block: 2%;
@@ -48,7 +48,7 @@ body {
     margin-inline: 25%;
     border: #6D7993 1px solid;
     border-radius: 20px;
-    background-color: #6D7993;
+    background-color: rgb(63, 63, 68);
     color: #F5F5F5; 
     font-size: 20px;
 }
