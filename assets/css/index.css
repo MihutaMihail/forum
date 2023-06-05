@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: rgb(63, 63, 68);
+    background: #979696;
 }
 
 #centerBox {
@@ -49,7 +49,7 @@ body {
     border: #6D7993 1px solid;
     border-radius: 20px;
     background-color: rgb(63, 63, 68);
-    color: #F5F5F5; 
+    color: #F5F5F5;
     font-size: 20px;
 }
 
@@ -59,7 +59,7 @@ p {
 }
 
 a {
-    text-decoration: underline; 
+    text-decoration: underline;
     color: blue;
 }
 
