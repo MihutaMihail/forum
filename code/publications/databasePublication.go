@@ -44,7 +44,6 @@ func GetAllPosts(postValue string, uid int) []PublicationData {
 	checkErr(err)
 	defer rows.Close()
 
-
 	posts = nil
 	existingPosts = make(map[int]bool)
 	// Store the select posts
